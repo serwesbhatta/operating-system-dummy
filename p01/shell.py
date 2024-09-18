@@ -8,6 +8,7 @@ This file is about capturing the user input so that you can mimic shell behavior
 import os
 import sys
 from time import sleep
+from packaging_your_commands import shell
 
 from getch import Getch
 
@@ -16,7 +17,8 @@ from getch import Getch
 
 getch = Getch()  # create instance of our getch class
 
-prompt = "$"  # set default prompt
+current_directory = shell.pwd();
+prompt = f"{current_directory} $"  # set default prompt
 
 
 def print_cmd(cmd):
