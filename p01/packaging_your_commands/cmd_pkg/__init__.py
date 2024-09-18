@@ -5,5 +5,6 @@ from .history import history
 from .cat import cat
 from .exit import exit
 from .echo import echo
+from .whoami import whoami
 
-__all__ = ["pwd", "ls", "echo", "grep", "history", "cat", "exit"]
+__all__ = ["pwd", "ls", "echo", "grep", "history", "cat", "exit", "whoami"]

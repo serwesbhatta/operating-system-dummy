@@ -23,10 +23,13 @@ current_directory = pwd()
 path_parts = current_directory.split("/")
 
 # Get the last three folders
-current_directory = "/".join(path_parts[-3:])
+current_directory ="/".join(path_parts[-3:])
+
+# Get current user
+user = whoami()
 
 # Set the prompt string
-prompt = f"{current_directory} $"  # set default prompt
+prompt = f"({user}) {current_directory} $"  # set default prompt
 
 
 def print_cmd(cmd):
