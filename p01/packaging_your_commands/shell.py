@@ -2,7 +2,7 @@ import os
 import sys
 from time import sleep
 from cmd_pkg import *
-from getch import Getch
+# from getch import Getch
 import importlib
 import pkgutil
 import cmd_pkg
