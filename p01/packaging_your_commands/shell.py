@@ -15,21 +15,8 @@ cmds = {}
 
 getch = Getch()  # create instance of our getch class
 
-# Getting the current directory to show to the prompt
-current_directory = pwd()
-
-# Sliting the path by "/"
-path_parts = current_directory.split("/")
-
-# Get the last three folders
-current_directory ="/".join(path_parts[-3:])
-
-# Get current user
-user = whoami()
-
-# Set the prompt string
-prompt = f"({user}) {current_directory} $"  # set default prompt
-
+# Get the prompt string
+prompt = prompt()
 
 def print_cmd(cmd):
     """This function "cleans" off the command line, then prints
