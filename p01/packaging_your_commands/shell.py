@@ -27,8 +27,25 @@ def print_cmd(cmd):
     sys.stdout.write("\r" + prompt + cmd)
     sys.stdout.flush()
 
+# Dynamically load all functions from cmd_pkg into the dictionary
+def load_commands():
+    global cmds
+
+    # Loop through all modules in the cmd_pkg package
+    for _, module_name, _ in pkgutil.iter_modules(cmd_pkg.__path__):
+        module = importlib.import_module(f"cmd_pkg.{module_name}")
+
+        # Loop through the attributes in each module
+        for name in dir(module):
+            obj = getattr(module, name)
+            # Check if it's a callable function and doesn't start with '__'
+            if callable(obj) and not name.startswith("__"):
+                cmds[name] = obj
 
 if __name__ == "__main__":
+    # Load the commands dynamically from cmd_pkg
+    load_commands()
+
     cmd = ""  # empty cmd variable
 
     print_cmd(cmd)  # print to terminal
@@ -84,11 +101,42 @@ if __name__ == "__main__":
 
         elif char in "\r":  # return pressed
 
-            # This 'elif' simulates something "happening" after pressing return
-            cmd = "Executing command...."  #
-            print_cmd(cmd)
-            sleep(1)
+            # # This 'elif' simulates something "happening" after pressing return
+            # print_cmd("Executing command....")
+            # sleep(1)
 
+            # Split the input command at the first ">"
+            cmd, output_file = cmd.split(">", 1) if ">" in cmd else (cmd, "")
+
+            # Remove spaces
+            cmd = cmd.strip()
+            output_file = output_file.strip() if output_file else ""
+
+            # Split commands and the arguments
+            cmd_parts = cmd.split()
+
+            if len(cmd_parts) > 0:
+                main_cmd = cmd_parts[0]
+                args = cmd_parts[1:]
+
+                if main_cmd in cmds:
+                    # Call the function
+                    result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
+                
+                    if output_file:
+                        with open(output_file, "w") as f:
+                            f.write(result)
+                    
+                    else:
+                        print(f"\n{result}")
+            
+                else:
+                    print()
+                    print(f"Error: Command '{main_cmd}' not found.")
+            
+            cmd =""
+            print_cmd(cmd)
+            
             ## YOUR CODE HERE
             ## Parse the command
             ## Figure out what your executing like finding pipes and redirects
@@ -100,43 +148,9 @@ if __name__ == "__main__":
             cmd += char  # add typed character to our "cmd"
             print_cmd(cmd)  # print the cmd out
 
-
-# Dynamically load all functions from cmd_pkg into the dictionary
-def load_commands():
-    global cmds
-
-    # Loop through all modules in the cmd_pkg package
-    for _, module_name, _ in pkgutil.iter_modules(cmd_pkg.__path__):
-        module = importlib.import_module(f"cmd_pkg.{module_name}")
-
-        # Loop through the attributes in each module
-        for name in dir(module):
-            obj = getattr(module, name)
-            # Check if it's a callable function and doesn't start with '__'
-            if callable(obj) and not name.startswith("__"):
-                cmds[name] = obj
-
-
 # Get the docstring of a function
 def get_docstring(func_name):
     if func_name in cmds:
         return cmds[func_name].__doc__
     else:
         return f"Function '{func_name}' not found."
-
-
-if __name__ == "__main__":
-    # Load the commands dynamically from cmd_pkg
-    load_commands()
-
-    print(cmds)
-    # Example usage:
-    cmd = "ls"
-    params = ["/usr/local/bin"]
-
-    # Call the function dynamically from the dictionary
-    if cmd in cmds:
-        result = cmds[cmd](params=params)
-        print(result)
-    else:
-        print(f"Command '{cmd}' not found.")
