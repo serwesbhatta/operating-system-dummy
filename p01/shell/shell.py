@@ -42,6 +42,15 @@ def load_commands():
             if callable(obj) and not name.startswith("__"):
                 cmds[name] = obj
 
+# Helper function to execute a single command
+def execute_command(main_cmd, args, input_data=None):
+    if main_cmd in cmds:
+        # Call the function with or without parameters
+        result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
+        return result
+    else:
+        return f"Error: Command '{main_cmd}' not found."
+
 if __name__ == "__main__":
     # Load the commands dynamically from cmd_pkg
     load_commands()
@@ -105,38 +114,59 @@ if __name__ == "__main__":
             # print_cmd("Executing command....")
             # sleep(1)
 
-            # Split the input command at the first ">"
-            cmd, output_file = cmd.split(">", 1) if ">" in cmd else (cmd, "")
-
-            # Remove spaces
-            cmd = cmd.strip()
-            output_file = output_file.strip() if output_file else ""
-
-            # Split commands and the arguments
-            cmd_parts = cmd.split()
-
-            if len(cmd_parts) > 0:
-                main_cmd = cmd_parts[0]
-                args = cmd_parts[1:]
-
-                if main_cmd in cmds:
-                    # Call the function
-                    result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
+            # Check for pipes
+            if "|" in cmd:
+                # Split by pipes
+                pipe_cmds = cmd.split("|")
                 
-                    if output_file:
-                        with open(output_file, "w") as f:
-                            f.write(result)
+                input_data = None  # This will store the output from the previous command
+
+                for pipe_cmd in pipe_cmds:
+                    # Split the subcommand and its arguments
+                    cmd_parts = pipe_cmd.strip().split()
                     
-                    else:
-                        print(f"\n{result}")
-            
+                    if len(cmd_parts) > 0:
+                        main_cmd = cmd_parts[0]
+                        args = cmd_parts[1:]
+
+                        # Execute the command
+                        result = execute_command(main_cmd, args, input_data)
+                        
+                        # If result is an error, stop processing further
+                        if "Error" in result:
+                            print(result)
+                            break
+                        
+                        # Pass the result as input for the next command
+                        input_data = result
+
+                # Handle output redirection if applicable
+                if output_file:
+                    with open(output_file, "w") as f:
+                        f.write(input_data)
                 else:
-                    print()
-                    print(f"Error: Command '{main_cmd}' not found.")
-            
-            cmd =""
-            print_cmd(cmd)
-            
+                    print(f"\n{input_data}")
+
+            else:
+                # No pipe, execute normally
+                cmd_parts = cmd.split()
+
+                if len(cmd_parts) > 0:
+                    main_cmd = cmd_parts[0]
+                    args = cmd_parts[1:]
+
+                    if main_cmd in cmds:
+                        # Call the function
+                        result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
+                        
+                        if output_file:
+                            with open(output_file, "w") as f:
+                                f.write(result)
+                        else:
+                            print(f"\n{result}")
+                    else:
+                        print(f"\nError: Command '{main_cmd}' not found.")
+
             ## YOUR CODE HERE
             ## Parse the command
             ## Figure out what your executing like finding pipes and redirects
@@ -147,7 +177,7 @@ if __name__ == "__main__":
         else:
             cmd += char  # add typed character to our "cmd"
             print_cmd(cmd)  # print the cmd out
-
+            
 # Get the docstring of a function
 def get_docstring(func_name):
     if func_name in cmds:
