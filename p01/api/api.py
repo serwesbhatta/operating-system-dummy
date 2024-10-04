@@ -71,15 +71,21 @@ def create_file(name: str):
     Create a new file in the simulated filesystem and record the action in the database.
     """
     if fsDB:
-        parent = 1  # Assuming 1 is the root directory ID; update based on your schema
-        existing_file = fsDB.read_data("files", name)
+        parent = 1  # Assuming 1 is the root directory ID; update based on the schema
+        filters = {'name': name}
+        existing_file = fsDB.read_data("files", filters)
+
+        print("Database is initialized")
 
         if existing_file:
+            print("File doesn't exist")
             raise HTTPException(status_code=400, detail="File already exists.")
 
+        print("Inserting Data")
         fsDB.insert_data(
             "files", (None, name, parent, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
         )
+        
         return {"message": f"File '{name}' created successfully."}
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
