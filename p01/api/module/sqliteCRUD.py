@@ -78,6 +78,7 @@ class SqliteCRUD:
             if results:
                 for row in results:
                     print(row)
+                return results
             else:
                 print("No data found in the table.")
         except sqlite3.Error as e:

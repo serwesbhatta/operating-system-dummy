@@ -1,4 +1,3 @@
-# Libraries for FastAPI
 from fastapi import FastAPI, HTTPException
 from fastapi.responses import RedirectResponse
 from fastapi.middleware.cors import CORSMiddleware
@@ -8,17 +7,14 @@ from datetime import datetime
 # Builtin libraries
 import os
 
-from random import choice
-
 # Classes from your module
-# from module import SqliteCRUD
-from database import SqliteCRUD
+from module import SqliteCRUD
 
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 # FastAPI application instance
 description = """🚀
-## File System API
+## File System API (Simulated using SQLite)
 """
 
 app = FastAPI(
@@ -38,14 +34,14 @@ app = FastAPI(
 )
 
 # Database setup
-dataPath = "../data/"
+dataPath = "./data/"
 dbName = "filesystem.db"
 if os.path.exists(os.path.join(dataPath, dbName)):
     fsDB = SqliteCRUD(os.path.join(dataPath, dbName))
 else:
     fsDB = None
     print("Database file not found.")
-  
+
 # Routes
 
 @app.get("/")
@@ -57,7 +53,7 @@ async def docs_redirect():
 @app.get("/files/")
 async def get_files(did=None):
     """
-    Get a list of files in the current directory.
+    Get a list of files from the simulated filesystem (from the database).
     """
     if fsDB:
         files = fsDB.read_data("files")
@@ -72,10 +68,10 @@ async def get_files(did=None):
 @app.post("/touch")
 def create_file(name: str):
     """
-    Create a new file in the filesystem and record the action in the database.
+    Create a new file in the simulated filesystem and record the action in the database.
     """
     if fsDB:
-        parent = choice([3, 4, 5, 6, 7])
+        parent = 1  # Assuming 1 is the root directory ID; update based on your schema
         existing_file = fsDB.read_data("files", name)
 
         if existing_file:
@@ -90,18 +86,19 @@ def create_file(name: str):
 
 
 @app.delete("/rm")
-def delete_file(filepath: str):
+def delete_file(filename: str):
     """
-    Delete a file from the filesystem and record the action in the database.
+    Deletes a file from the simulated filesystem (i.e., the SQLite database).
+    :param filename: The name of the file to be deleted.
     """
     if fsDB:
-        if fsDB.read_data("files", filepath):
-            try:
-                os.remove(filepath)
-                fsDB.update_file(filepath, "deleted")
-                return {"message": f"File '{filepath}' deleted successfully."}
-            except FileNotFoundError:
-                raise HTTPException(status_code=404, detail="File not found.")
+        # Check if the file exists in the database
+        file_record = fsDB.read_data("files", filename)
+        
+        if file_record:
+            # Delete file record from the database
+            fsDB.delete_data("files", "name", filename)
+            return {"message": f"File '{filename}' deleted from the database."}
         else:
             raise HTTPException(status_code=404, detail="File not found in database.")
     else:
@@ -109,89 +106,91 @@ def delete_file(filepath: str):
 
 
 @app.get("/file")
-def read_file(filepath: str):
+def read_file(filename: str):
     """
-    Read the contents of a file and log the read action in the database.
+    Reads the contents of a file from the simulated filesystem and logs the read action in the database.
+    :param filename: The name of the file to read.
     """
     if fsDB:
-        try:
-            with open(filepath, 'r') as file:
-                content = file.read()
-            fsDB.insert_action(filepath, "read")
+        file_record = fsDB.read_data("files", filename)
+        if file_record:
+            content = file_record.get("content")  # Assuming you store content in the DB
+            fsDB.insert_action(filename, "read")  # Log the read action
             return {"content": content}
-        except FileNotFoundError:
+        else:
             raise HTTPException(status_code=404, detail="File not found.")
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
 
 @app.post("/filePath")
-def write_file(filepath: str, content: str):
+def write_file(filename: str, content: str):
     """
-    Write data to a file and log the write operation in the database.
+    Write data to a file in the simulated filesystem and log the write operation in the database.
+    :param filename: The name of the file to write to.
+    :param content: The content to write to the file.
     """
     if fsDB:
-        try:
-            with open(filepath, 'w') as file:
-                file.write(content)
-            fsDB.insert_action(filepath, "written")
-            return {"message": f"Content written to {filepath}."}
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        file_record = fsDB.read_data("files", filename)
+        if file_record:
+            fsDB.update_file(filename, {"content": content, "modified_at": CURRENT_TIMESTAMP})
+            fsDB.insert_action(filename, "written")  # Log the write action
+            return {"message": f"Content written to {filename}."}
+        else:
+            raise HTTPException(status_code=404, detail="File not found.")
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
 
 @app.put("/mv")
-def rename_file(old_filepath: str, new_filepath: str):
+def rename_file(old_filename: str, new_filename: str):
     """
-    Rename a file in the filesystem and update the database with the new name.
+    Rename a file in the simulated filesystem and update the database with the new name.
+    :param old_filename: The current file name.
+    :param new_filename: The new file name.
     """
     if fsDB:
-        try:
-            os.rename(old_filepath, new_filepath)
-            fsDB.update_filename(old_filepath, new_filepath)
-            return {"message": f"File renamed from {old_filepath} to {new_filepath}."}
-        except FileNotFoundError:
+        file_record = fsDB.read_data("files", old_filename)
+        if file_record:
+            fsDB.update_filename(old_filename, new_filename)
+            return {"message": f"File renamed from {old_filename} to {new_filename}."}
+        else:
             raise HTTPException(status_code=404, detail="File not found.")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
 
 @app.post("/dir")
-def create_directory(directory_path: str):
+def create_directory(directory_name: str):
     """
-    Create a new directory in the filesystem and log the action in the database.
+    Create a new directory in the simulated filesystem and log the action in the database.
     """
     if fsDB:
-        try:
-            os.makedirs(directory_path)
-            fsDB.insert_directory(directory_path, "created")
-            return {"message": f"Directory '{directory_path}' created successfully."}
-        except FileExistsError:
+        existing_dir = fsDB.read_data("directories", directory_name)
+        if existing_dir:
             raise HTTPException(status_code=400, detail="Directory already exists.")
-        except Exception as e:
-            raise HTTPException(status_code=500, detail=str(e))
+        
+        parent_id = 1  # Assuming root directory; change if necessary
+        fsDB.insert_data(
+            "directories", (None, directory_name, parent_id, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+        )
+        return {"message": f"Directory '{directory_name}' created successfully."}
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
 
 @app.delete("/dir")
-def delete_directory(directory_path: str):
+def delete_directory(directory_name: str):
     """
-    Delete a directory and its contents from the filesystem and log the action in the database.
+    Delete a directory and its contents from the simulated filesystem (database) and log the action.
     """
     if fsDB:
-        try:
-            os.rmdir(directory_path)
-            fsDB.update_directory(directory_path, "deleted")
-            return {"message": f"Directory '{directory_path}' deleted successfully."}
-        except FileNotFoundError:
+        directory_record = fsDB.read_data("directories", directory_name)
+        if directory_record:
+            fsDB.delete_data("directories", "name", directory_name)
+            return {"message": f"Directory '{directory_name}' deleted from the database."}
+        else:
             raise HTTPException(status_code=404, detail="Directory not found.")
-        except OSError as e:
-            raise HTTPException(status_code=400, detail="Directory is not empty.")
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 

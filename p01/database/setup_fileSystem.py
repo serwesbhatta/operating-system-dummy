@@ -1,7 +1,7 @@
 import os
 import sqlite3
 
-db_path = "../data/filesystem.db"
+db_path = "../api/data/filesystem.db"
 
 # Check if the database file exists before trying to remove it
 if os.path.exists(db_path):
