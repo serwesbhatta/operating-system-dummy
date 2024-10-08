@@ -78,7 +78,7 @@ def create_file(name: str):
         print("Database is initialized")
 
         if existing_file:
-            print("File doesn't exist")
+            print("File already exists")
             raise HTTPException(status_code=400, detail="File already exists.")
 
         print("Inserting Data")
