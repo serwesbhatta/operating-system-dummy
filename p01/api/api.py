@@ -55,8 +55,9 @@ async def get_files(did=None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """
+    filters = {"name": did}
     if fsDB:
-        files = fsDB.read_data("files")
+        files = fsDB.read_data("files", filters)
         if files:
             return files
         else:
@@ -98,7 +99,7 @@ def delete_file(filename: str):
     :param filename: The name of the file to be deleted.
     """
     parent = 1
-    
+
     if fsDB:
         # Check if the file exists in the database
         filters = {"name": filename, "parent_id": parent}  # Use a dictionary for filters
@@ -120,8 +121,10 @@ def read_file(filename: str):
     Reads the contents of a file from the simulated filesystem and logs the read action in the database.
     :param filename: The name of the file to read.
     """
+    parent = 13
     if fsDB:
-        file_record = fsDB.read_data("files", filename)
+        filters = {"name": filename, "parent_id": parent}  # Use a dictionary for filters
+        file_record = fsDB.read_data("files", filters)
         if file_record:
             content = file_record.get("content")  # Assuming you store content in the DB
             fsDB.insert_action(filename, "read")  # Log the read action
