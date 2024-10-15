@@ -51,13 +51,17 @@ async def docs_redirect():
 
 
 @app.get("/files/")
-async def get_files(did=None):
+async def get_files(name=None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """
-    filters = {"name": did}
+    if name:
+        filters = {"name": name}
     if fsDB:
-        files = fsDB.read_data("files", filters)
+        if name:
+            files = fsDB.read_data("files", filters)
+        else:
+            files = fsDB.read_data("files")
         if files:
             return files
         else:
@@ -71,9 +75,11 @@ def create_file(name: str):
     """
     Create a new file in the simulated filesystem and record the action in the database.
     """
+    parent = 1
     if fsDB:
         parent = 1  # Assuming 1 is the root directory ID; update based on the schema
-        filters = {'name': name}
+        filters = {'name': name, 'pid': parent}
+
         existing_file = fsDB.read_data("files", filters)
 
         print("Database is initialized")
@@ -83,9 +89,14 @@ def create_file(name: str):
             raise HTTPException(status_code=400, detail="File already exists.")
 
         print("Inserting Data")
-        fsDB.insert_data(
-            "files", (None, name, parent, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+
+        # Insert values corresponding to the specified columns
+        values = (
+            None, parent, None, name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
+            1, 0, 1, 1, 0, 1  # Permissions and default values
         )
+
+        fsDB.insert_data("files", values)
         
         return {"message": f"File '{name}' created successfully."}
     else:
@@ -102,7 +113,7 @@ def delete_file(filename: str):
 
     if fsDB:
         # Check if the file exists in the database
-        filters = {"name": filename, "parent_id": parent}  # Use a dictionary for filters
+        filters = {"name": filename, "pid": parent}  # Use a dictionary for filters
         file_record = fsDB.read_data("files", filters)
         
         if file_record:
@@ -121,9 +132,9 @@ def read_file(filename: str):
     Reads the contents of a file from the simulated filesystem and logs the read action in the database.
     :param filename: The name of the file to read.
     """
-    parent = 13
+    parent = 1
     if fsDB:
-        filters = {"name": filename, "parent_id": parent}  # Use a dictionary for filters
+        filters = {"name": filename, "pid": parent}  # Use a dictionary for filters
         file_record = fsDB.read_data("files", filters)
         if file_record:
             content = file_record.get("content")  # Assuming you store content in the DB
