@@ -51,12 +51,17 @@ async def docs_redirect():
 
 
 @app.get("/files/")
-async def get_files(did=None):
+async def get_files(name=None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """
+    if name:
+        filters = {"name": name}
     if fsDB:
-        files = fsDB.read_data("files")
+        if name:
+            files = fsDB.read_data("files", filters)
+        else:
+            files = fsDB.read_data("files")
         if files:
             return files
         else:
@@ -70,21 +75,28 @@ def create_file(name: str):
     """
     Create a new file in the simulated filesystem and record the action in the database.
     """
+    parent = 1
     if fsDB:
         parent = 1  # Assuming 1 is the root directory ID; update based on the schema
-        filters = {'name': name}
+        filters = {'name': name, 'pid': parent}
+
         existing_file = fsDB.read_data("files", filters)
 
         print("Database is initialized")
 
         if existing_file:
-            print("File doesn't exist")
+            print("File already exists")
             raise HTTPException(status_code=400, detail="File already exists.")
 
         print("Inserting Data")
-        fsDB.insert_data(
-            "files", (None, name, parent, 0, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP)
+
+        # Insert values corresponding to the specified columns
+        values = (
+            None, parent, None, name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
+            1, 0, 1, 1, 0, 1  # Permissions and default values
         )
+
+        fsDB.insert_data("files", values)
         
         return {"message": f"File '{name}' created successfully."}
     else:
@@ -97,9 +109,12 @@ def delete_file(filename: str):
     Deletes a file from the simulated filesystem (i.e., the SQLite database).
     :param filename: The name of the file to be deleted.
     """
+    parent = 1
+
     if fsDB:
         # Check if the file exists in the database
-        file_record = fsDB.read_data("files", filename)
+        filters = {"name": filename, "pid": parent}  # Use a dictionary for filters
+        file_record = fsDB.read_data("files", filters)
         
         if file_record:
             # Delete file record from the database
@@ -110,21 +125,19 @@ def delete_file(filename: str):
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
-
 @app.get("/file")
-def read_file(filename: str):
+def read_file(filename: str, user_id: int):
     """
     Reads the contents of a file from the simulated filesystem and logs the read action in the database.
     :param filename: The name of the file to read.
+    :param user_id: The ID of the user trying to read the file.
     """
     if fsDB:
-        file_record = fsDB.read_data("files", filename)
-        if file_record:
-            content = file_record.get("content")  # Assuming you store content in the DB
-            fsDB.insert_action(filename, "read")  # Log the read action
-            return {"content": content}
+        response = fsDB.get_file_content(filename, user_id)
+        if response["success"]:
+            return response["content"]
         else:
-            raise HTTPException(status_code=404, detail="File not found.")
+            raise HTTPException(status_code=response["status"], detail=response["message"])
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
