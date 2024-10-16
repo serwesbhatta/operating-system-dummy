@@ -125,23 +125,19 @@ def delete_file(filename: str):
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
-
 @app.get("/file")
-def read_file(filename: str):
+def read_file(filename: str, user_id: int):
     """
     Reads the contents of a file from the simulated filesystem and logs the read action in the database.
     :param filename: The name of the file to read.
+    :param user_id: The ID of the user trying to read the file.
     """
-    parent = 1
     if fsDB:
-        filters = {"name": filename, "pid": parent}  # Use a dictionary for filters
-        file_record = fsDB.read_data("files", filters)
-        if file_record:
-            content = file_record.get("content")  # Assuming you store content in the DB
-            fsDB.insert_action(filename, "read")  # Log the read action
-            return {"content": content}
+        response = fsDB.get_file_content(filename, user_id)
+        if response["success"]:
+            return response["content"]
         else:
-            raise HTTPException(status_code=404, detail="File not found.")
+            raise HTTPException(status_code=response["status"], detail=response["message"])
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
 
