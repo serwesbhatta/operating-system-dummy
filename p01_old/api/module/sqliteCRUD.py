@@ -110,8 +110,10 @@ class SqliteCRUD:
             self.cursor.execute(update_query, (new_value, condition_value))
             self.conn.commit()
             print("Data updated successfully.")
+            return {"success": True, "message": "Data updated successfully."}
         except sqlite3.Error as e:
-            print(f"Error updating data: {e}")
+            return {"success": False, "message": f"Error updating data: {e}"}
+
 
     def delete_data(self, table_name, condition_column, condition_value):
         """Delete data from a table based on a condition."""
