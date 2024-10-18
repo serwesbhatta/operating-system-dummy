@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from ...database.sqliteCRUD import SqliteCRUD
 
-def delete_file(fsDB: SqliteCRUD, filename: str):
+def Delete_file(fsDB: SqliteCRUD, filename: str):
     """
     Deletes a file from the simulated filesystem (i.e., the SQLite database).
     :param filename: The name of the file to be deleted.

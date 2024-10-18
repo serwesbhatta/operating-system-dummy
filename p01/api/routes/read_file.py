@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from ...database.sqliteCRUD import SqliteCRUD
 
-def read_file(fsDB: SqliteCRUD, filename: str, user_id: int):
+def Read_file(fsDB: SqliteCRUD, filename: str, user_id: int):
     """
     Reads the contents of a file from the simulated filesystem and logs the read action in the database.
     :param filename: The name of the file to read.

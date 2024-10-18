@@ -1,6 +1,6 @@
 import sqlite3
 
-def delete_data(self, table_name, condition_column, condition_value):
+def Delete_data(self, table_name, condition_column, condition_value):
         """Delete data from a table based on a condition."""
         try:
             delete_query = f"DELETE FROM {table_name} WHERE {condition_column} = ?;"

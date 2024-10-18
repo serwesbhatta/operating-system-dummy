@@ -5,7 +5,7 @@ from ...database.sqliteCRUD import SqliteCRUD
 
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def create_file(fsDB: SqliteCRUD, name: str):
+def Create_file(fsDB: SqliteCRUD, name: str):
     """
     Create a new file in the simulated filesystem and record the action in the database.
     """

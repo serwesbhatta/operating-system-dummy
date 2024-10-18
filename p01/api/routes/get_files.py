@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from ...database.sqliteCRUD import SqliteCRUD
 
-async def get_files(fsDB: SqliteCRUD, name=None):
+async def Get_files(fsDB: SqliteCRUD, name=None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """

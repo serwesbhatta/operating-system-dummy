@@ -1,4 +1,4 @@
-def describe_table(self, table_name, raw=False):
+def Describe_table(self, table_name, raw=False):
         """Describe the structure of a table."""
         self.cursor.execute(f"PRAGMA table_info({table_name});")
         results = self.cursor.fetchall()

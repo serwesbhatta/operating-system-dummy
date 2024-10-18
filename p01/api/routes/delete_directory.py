@@ -1,2 +1,2 @@
-def delete_directory():
+def Delete_directory():
   pass

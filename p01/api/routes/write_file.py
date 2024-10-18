@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from ...database.sqliteCRUD import SqliteCRUD
 
-def write_file(fsDB: SqliteCRUD, filepath: str, content: str, user_id: int):
+def Write_file(fsDB: SqliteCRUD, filepath: str, content: str, user_id: int):
     """
     Writes data to a file and logs the write operation in the database.
     :param filepath: The path of the file to write to.

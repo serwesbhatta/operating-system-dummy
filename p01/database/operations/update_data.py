@@ -1,6 +1,6 @@
 import sqlite3
 
-def update_data(self, table_name, column, new_value, condition_column, condition_value):
+def Update_data(self, table_name, column, new_value, condition_column, condition_value):
         """Update data in a table based on a condition."""
         try:
             update_query = f"UPDATE {table_name} SET {column} = ? WHERE {condition_column} = ?;"

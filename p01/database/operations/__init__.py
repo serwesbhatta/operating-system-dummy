@@ -1,23 +1,23 @@
-from .create_table import create_table
-from .delete_data import delete_data
-from .describe_table import describe_table
-from .drop_table import drop_table
-from .get_file_content import get_file_content
-from .insert_data import insert_data
-from .read_data import read_data
-from .show_tables import show_tables
-from .table_exists import table_exists
-from .update_data import update_data
+from .create_table import Create_table
+from .delete_data import Delete_data
+from .describe_table import Describe_table
+from .drop_table import Drop_table
+from .get_file_content import Get_file_content
+from .insert_data import Insert_data
+from .read_data import Read_data
+from .show_tables import Show_tables
+from .table_exists import Table_exists
+from .update_data import Update_data
 
 __all__ = [
-    "create_table",
-    "delete_data",
-    "describe_table",
-    "drop_table",
-    "get_file_content",
-    "insert_data",
-    "read_data",
-    "show_tables",
-    "table_exists",
-    "update_data",
+    "Create_table",
+    "Delete_data",
+    "Describe_table",
+    "Drop_table",
+    "Get_file_content",
+    "Insert_data",
+    "Read_data",
+    "Show_tables",
+    "Table_exists",
+    "Update_data",
 ]

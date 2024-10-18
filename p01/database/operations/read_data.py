@@ -1,6 +1,6 @@
 import sqlite3
 
-def read_data(self, table_name, filters=None):
+def Read_data(self, table_name, filters=None):
         """
         Read data from a table, with optional filtering.
     

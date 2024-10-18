@@ -1,6 +1,6 @@
 import sqlite3
 
-def create_table(self, table_name, columns):
+def Create_table(self, table_name, columns):
         """Create a new table with specified columns."""
         try:
             create_table_query = f"CREATE TABLE IF NOT EXISTS {table_name} ({', '.join(columns)});"

@@ -1,6 +1,6 @@
 import sqlite3
 
-def get_file_content(self, filename, user_id):
+def Get_file_content(self, filename, user_id):
         """
         Retrieves file content and checks permissions.
         """

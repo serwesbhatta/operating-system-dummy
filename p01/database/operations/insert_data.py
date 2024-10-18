@@ -1,6 +1,6 @@
 import sqlite3
 
-def insert_data(self, table_name, data):
+def Insert_data(self, table_name, data):
         """Insert data into a table."""
         try:
             placeholders = ", ".join("?" * len(data))
