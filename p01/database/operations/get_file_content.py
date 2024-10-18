@@ -1,13 +1,13 @@
 import sqlite3
+from .read_data import Read_data
 
-def Get_file_content(self, filename, user_id):
+def Get_file_content(cursor, filters):
         """
         Retrieves file content and checks permissions.
         """
         try:
             # Fetch file details
-            filters = {"name": filename}
-            file_record = self.read_data("files", filters)
+            file_record = Read_data(cursor, "files", filters)
 
             if file_record:
                 owner_id = file_record[0][2]  # Owner ID
@@ -15,7 +15,7 @@ def Get_file_content(self, filename, user_id):
                 world_read = file_record[0][11]  # World read permission
 
                 # Check if the user has permission to read
-                if (user_id == owner_id and read_permission == 1) or world_read == 1:
+                if (filters["oid"] == owner_id and read_permission == 1) or world_read == 1:
                     content = file_record[0][7]  # File content
                     return {"success": True, "status": 200, "content": content}
                 else:

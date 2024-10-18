@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from ...database.sqliteCRUD import SqliteCRUD
+from database.sqliteCRUD import SqliteCRUD
 
 def Read_file(fsDB: SqliteCRUD, filename: str, user_id: int):
     """

@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from ...database.sqliteCRUD import SqliteCRUD
+from database.sqliteCRUD import SqliteCRUD
 
 def Delete_file(fsDB: SqliteCRUD, filename: str):
     """

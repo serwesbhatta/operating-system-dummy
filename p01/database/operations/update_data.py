@@ -1,11 +1,11 @@
 import sqlite3
 
-def Update_data(self, table_name, column, new_value, condition_column, condition_value):
+def Update_data(cursor, conn, table_name, column, new_value, condition_column, condition_value):
         """Update data in a table based on a condition."""
         try:
             update_query = f"UPDATE {table_name} SET {column} = ? WHERE {condition_column} = ?;"
-            self.cursor.execute(update_query, (new_value, condition_value))
-            self.conn.commit()
+            cursor.execute(update_query, (new_value, condition_value))
+            conn.commit()
             print("Data updated successfully.")
             return {"success": True, "message": "Data updated successfully."}
         except sqlite3.Error as e:

@@ -12,7 +12,7 @@ class SqliteCRUD:
         self.cursor = self.conn.cursor()
 
     def create_table(self, table_name, columns):
-        Create_table(self.cursor, table_name, columns)
+        Create_table(self.cursor, self.conn, table_name, columns)
 
     def drop_table(self, table_name):
         Drop_table(self.cursor, self.conn, table_name)
@@ -38,9 +38,9 @@ class SqliteCRUD:
     def table_exists(self, table_name):
         return Table_exists(self.cursor, table_name)
 
-    def get_file_content(self, filename, user_id):
-        filters = {"name": filename}
-        return Get_file_content(self.cursor, "files", filters)
+    def get_file_content(self, filename, oid):
+        filters = {"name": filename, "oid" : oid}
+        return Get_file_content(self.cursor, filters)
     
     def close_connection(self):
         """Close the database connection."""

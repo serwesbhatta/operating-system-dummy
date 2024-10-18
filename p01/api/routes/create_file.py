@@ -1,7 +1,7 @@
 from fastapi import HTTPException
 from datetime import datetime
 
-from ...database.sqliteCRUD import SqliteCRUD
+from database.sqliteCRUD import SqliteCRUD
 
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 

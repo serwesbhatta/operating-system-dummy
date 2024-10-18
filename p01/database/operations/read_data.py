@@ -1,6 +1,6 @@
 import sqlite3
 
-def Read_data(self, table_name, filters=None):
+def Read_data(cursor, table_name, filters=None):
         """
         Read data from a table, with optional filtering.
     
@@ -21,8 +21,8 @@ def Read_data(self, table_name, filters=None):
                 where_clause = " WHERE " + " AND ".join(conditions)
                 select_query += where_clause
 
-            self.cursor.execute(select_query, tuple(filters.values()) if filters else ())
-            results = self.cursor.fetchall()
+            cursor.execute(select_query, tuple(filters.values()) if filters else ())
+            results = cursor.fetchall()
 
             if results:
                 print(results)

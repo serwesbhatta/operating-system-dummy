@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from ...database.sqliteCRUD import SqliteCRUD
+from database.sqliteCRUD import SqliteCRUD
 
 async def Get_files(fsDB: SqliteCRUD, name=None):
     """

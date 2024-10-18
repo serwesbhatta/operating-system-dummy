@@ -1,5 +1,5 @@
 from fastapi import HTTPException
-from ...database.sqliteCRUD import SqliteCRUD
+from database.sqliteCRUD import SqliteCRUD
 
 def Write_file(fsDB: SqliteCRUD, filepath: str, content: str, user_id: int):
     """
