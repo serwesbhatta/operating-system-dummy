@@ -6,6 +6,15 @@ import importlib
 import pkgutil
 import cmd_pkg
 
+# Import the Write_file function from your API
+from api.routes.write_file import Write_file
+
+# Ensure fsDB is available, import it from your main API or initialize it
+from database.sqliteCRUD import SqliteCRUD
+
+# Initialize your database connection (you may need to update this path)
+fsDB = SqliteCRUD("./database/data/filesystem.db")
+
 # Dictionary to store the commands
 cmds = {}
 
@@ -141,10 +150,20 @@ if __name__ == "__main__":
                         input_data = result
 
                 # Handle output redirection if applicable
-                if output_file:
-                    with open(output_file, "w") as f:
-                        f.write(input_data)
+                if ">" in cmd:
+                    output_file = cmd.split(">")[-1].strip()
+
+                    user_id = 1 #TODO: use dynamic value
+                    api_response = Write_file(fsDB, output_file, input_data, user_id)
+
+                     # Check if the API succeeded in writing to the database
+                    if api_response.get("message"):
+                        print(f"\n{api_response['message']}")
+                    else:
+                        print(f"\nError: Could not write to the file '{output_file}'.")
+
                 else:
+                    # No redirection, just print the output of the command
                     print(f"\n{input_data}")
 
             else:
@@ -159,10 +178,21 @@ if __name__ == "__main__":
                         # Call the function
                         result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
                         
-                        if output_file:
-                            with open(output_file, "w") as f:
-                                f.write(result)
+                        # Handle output redirection if applicable
+                        if ">" in cmd:
+                            output_file = cmd.split(">")[-1].strip()
+                            
+                            # Use the Write_file API to write the result to the database file system
+                            user_id = 1  # Assuming static user ID
+                            api_response = Write_file(fsDB, output_file, result, user_id)
+
+                            if api_response.get("message"):
+                                print(f"\n{api_response['message']}")
+                            else:
+                                print(f"\nError: Could not write to the file '{output_file}'.")
+                        
                         else:
+                            # No redirection, just print the result
                             print(f"\n{result}")
                     else:
                         print(f"\nError: Command '{main_cmd}' not found.")

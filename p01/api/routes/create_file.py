@@ -26,8 +26,8 @@ def Create_file(fsDB: SqliteCRUD, name: str):
 
         # Insert values corresponding to the specified columns
         values = (
-            None, parent, None, name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
-            1, 0, 1, 1, 0, 1  # Permissions and default values
+            None, parent, 1, name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
+            1, 1, 1, 1, 0, 1  # Permissions and default values
         )
 
         fsDB.insert_data("files", values)

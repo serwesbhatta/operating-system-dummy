@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from database.sqliteCRUD import SqliteCRUD
+from .create_file import Create_file
 
 def Write_file(fsDB: SqliteCRUD, filepath: str, content: str, user_id: int):
     """
@@ -31,6 +32,8 @@ def Write_file(fsDB: SqliteCRUD, filepath: str, content: str, user_id: int):
             else:
                 raise HTTPException(status_code=403, detail="Permission denied to write to the file.")
         else:
-            raise HTTPException(status_code=404, detail="File not found.")
+            Create_file(fsDB, filepath)
+            Write_file(fsDB, filepath, content, user_id)
+            return {"message": f"Created new file {filepath} sucessfully with the required content."}
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
