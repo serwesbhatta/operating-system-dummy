@@ -24,6 +24,14 @@ cmds = {}
 
 getch = Getch()  # create instance of our getch class
 
+# Used as a pointer in the terminal
+ppointer = {
+    "current_path" : "/",
+    "current_dir" : "/",
+    "pid" : "1",
+    "old" : "1"
+}
+
 # Get the prompt string
 prompt = prompt()
 
