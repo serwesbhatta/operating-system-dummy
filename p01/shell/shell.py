@@ -29,7 +29,7 @@ ppointer = {
     "current_path" : "/",
     "current_dir" : "/",
     "pid" : "1",
-    "old" : "1"
+    "oid" : "1"
 }
 
 # Get the prompt string

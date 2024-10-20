@@ -1,5 +1,9 @@
-# cmd_pkg/pwd.py
-from cmd_pkg.cwd_manager import cwd_manager
+from cmd_pkg.fs_state_manager import Fs_state_manager
 
-def pwd():
-    return cwd_manager.get_path()
+def pwd(params=None):
+    """Print the current working directory."""
+    # Get the current path from the file system state manager
+    current_path = Fs_state_manager.get_path()
+    
+    # Print the current path
+    return current_path
