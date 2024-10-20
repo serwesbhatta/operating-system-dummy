@@ -11,6 +11,13 @@ class SqliteCRUD:
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.cursor = self.conn.cursor()
 
+    def directory_exists(self, directory_name):
+        """Check if the specified directory exists in the database."""
+        query = "SELECT COUNT(*) FROM directories WHERE name = ?"
+        self.cursor.execute(query, (directory_name,))
+        count = self.cursor.fetchone()[0]
+        return count > 0
+
     def create_table(self, table_name, columns):
         Create_table(self.cursor, self.conn, table_name, columns)
 

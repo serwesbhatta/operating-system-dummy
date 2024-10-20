@@ -13,7 +13,7 @@ from api.routes.write_file import Write_file
 from database.sqliteCRUD import SqliteCRUD
 
 # Initialize your database connection (you may need to update this path)
-fsDB = SqliteCRUD("./database/data/filesystem.db")
+fsDB = SqliteCRUD("../database/data/filesystem.db")
 
 # Dictionary to store the commands
 cmds = {}
@@ -215,7 +215,9 @@ if __name__ == "__main__":
         else:
             cmd += char  # add typed character to our "cmd"
             print_cmd(cmd)  # print the cmd out
-            
+
+
+
 # Get the docstring of a function
 def get_docstring(func_name):
     if func_name in cmds:
