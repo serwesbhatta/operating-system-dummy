@@ -53,6 +53,5 @@ def cd(params):
 
     ppointer["current_path"] = Fs_state_manager.get_path()
     ppointer["current_dir"] = new_dir
-    print(f"\nChanged directory to: {Fs_state_manager.get_path()}\n")
-
+    print(f"\nChanged directory to: {Fs_state_manager.get_path()}")
     return ""

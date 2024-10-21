@@ -1,4 +1,4 @@
-from .pwd import pwd
+from cmd_pkg.pwd import pwd
 from .whoami import whoami
 
 def prompt():
@@ -10,10 +10,9 @@ def prompt():
 
   # Get the last three folders
   current_directory ="/".join(path_parts[-3:])
-
   # Get current user
   user = whoami()
-
+  # print("Called prompt")
   # Set the prompt string
   prompt = f"({user}) {current_directory} $"  # set default prompt
 

@@ -33,7 +33,7 @@ ppointer = {
 }
 
 # Get the prompt string
-prompt = prompt()
+# prompt = prompt()
 
 def print_cmd(cmd):
     """This function "cleans" off the command line, then prints
@@ -41,7 +41,7 @@ def print_cmd(cmd):
     """
     padding = " " * 80
     sys.stdout.write("\r" + padding)
-    sys.stdout.write("\r" + prompt + cmd)
+    sys.stdout.write("\r" + cmd_pkg.prompt() + cmd)
     sys.stdout.flush()
 
 # Dynamically load all functions from cmd_pkg into the dictionary
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     cmd = ""  # empty cmd variable
 
     print_cmd(cmd)  # print to terminal
-
+    cmd_pkg.history(None)
     while True:  # loop forever
 
         char = getch()  # read a character (but don't print)
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             # # This 'elif' simulates something "happening" after pressing return
             # print_cmd("Executing command....")
             # sleep(1)
-
+            cmd_pkg.history(cmd)
             # Check for pipes
             if "|" in cmd:
                 # Split by pipes
@@ -210,7 +210,6 @@ if __name__ == "__main__":
             ## Figure out what your executing like finding pipes and redirects
 
             cmd = ""  # reset command to nothing (since we just executed it)
-
             print_cmd(cmd)  # now print empty cmd prompt
         else:
             cmd += char  # add typed character to our "cmd"
