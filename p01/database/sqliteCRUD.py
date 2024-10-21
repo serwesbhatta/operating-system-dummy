@@ -1,4 +1,5 @@
 import sqlite3
+from database.operations.directory_exists import Directory_exists
 from prettytable import PrettyTable
 from .operations import *
 
@@ -11,6 +12,7 @@ class SqliteCRUD:
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.cursor = self.conn.cursor()
 
+   
     def create_table(self, table_name, columns):
         Create_table(self.cursor, self.conn, table_name, columns)
 
@@ -42,6 +44,42 @@ class SqliteCRUD:
         filters = {"name": filename, "oid" : oid}
         return Get_file_content(self.cursor, filters)
     
+    ##def directory_exists(self, directory_name):
+       ## return Directory_exists(self.cursor, directory_name)
+
+
+    def directory_exists(self, directory_name, pid):
+        """Check if a directory exists in the given parent directory (pid)."""
+        query = "SELECT COUNT(*) FROM directories WHERE name = ? AND pid = ?"
+        self.cursor.execute(query, (directory_name, pid))
+        count = self.cursor.fetchone()[0]
+        return count > 0
+
+    def get_directory_pid(self, directory_name, pid):
+        query = "SELECT id FROM directories WHERE name = ? AND pid = ?"
+        self.cursor.execute(query, (directory_name, pid))
+        result = self.cursor.fetchone()
+        if result:
+            return result[0]  # Return the directory ID (pid)
+        return None
+    
+    def get_parent_directory(self, pid):
+        """Retrieve the parent directory for the given directory ID (pid)."""
+        query = "SELECT name, pid FROM directories WHERE id = ?"
+        self.cursor.execute(query, (pid,))
+        result = self.cursor.fetchone()
+        if result:
+            return {'name': result[0], 'pid': result[1]}  # Return a dictionary with name and pid
+        return None
+    
+    def file_belongs_to_directory(self, file_name, directory_pid):
+        """Check if a file belongs to a specific directory."""
+        query = "SELECT COUNT(*) FROM files WHERE name = ? AND pid = ?"
+        self.cursor.execute(query, (file_name, directory_pid))
+        count = self.cursor.fetchone()[0]
+        return count > 0
+
+
     def close_connection(self):
         """Close the database connection."""
         self.conn.close()

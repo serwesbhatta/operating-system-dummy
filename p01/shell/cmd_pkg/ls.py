@@ -1,6 +1,8 @@
 from database.sqliteCRUD import SqliteCRUD
 from texttable import Texttable
 
+fsDB = SqliteCRUD("../database/data/filesystem.db")
+
 def format_permissions(permission, is_directory=False):
     """Convert permission numbers into rwx format for user/group/others."""
     permission_str = 'd' if is_directory else '-'
