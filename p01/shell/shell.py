@@ -1,15 +1,17 @@
 import os, sys
 
-from time import sleep
-import importlib
-import pkgutil
-import cmd_pkg
-
-# Import the Write_file function from your API
-from api.routes.write_file import Write_file
+# Add the parent directory to the system path to import 'database'
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 # Ensure fsDB is available, import it from your main API or initialize it
 from database.sqliteCRUD import SqliteCRUD
+
+from time import sleep
+import importlib
+import pkgutil
+
+# Import the Write_file function from your API
+from api.routes.write_file import Write_file
 
 #  Import commands
 from cmd_pkg import *

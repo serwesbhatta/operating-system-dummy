@@ -30,7 +30,7 @@ def get_owner_name(fsDB, owner_id):
         return user_record[0][1]  # Assuming username is the second column in the 'users' table
     return "unknown"
 
-def Ls(fsDB: SqliteCRUD, params=None):
+def ls(fsDB: SqliteCRUD, params=None):
     """Simulates the ls command with flags -a, -l, and -h."""
     # Parse the parameters (flags)
     show_hidden = False
