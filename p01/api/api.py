@@ -45,8 +45,13 @@ app = FastAPI(
 # Database setup
 dataPath = os.getenv("DB_PATH")
 dbName = os.getenv("DB_NAME")
-if os.path.exists(os.path.join(dataPath, dbName)):
-    fsDB = SqliteCRUD(os.path.join(dataPath, dbName))
+
+dbFilePath = os.path.join(dataPath, dbName)
+print("Checking for database at:", dbFilePath)
+
+if os.path.exists(dbFilePath):
+    fsDB = SqliteCRUD(dbFilePath)
+    
 else:
     fsDB = None
     print("Database file not found.")

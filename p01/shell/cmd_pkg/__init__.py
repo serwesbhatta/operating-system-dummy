@@ -8,5 +8,6 @@ from .echo import echo
 from .whoami import whoami
 from .getch import Getch
 from .prompt import prompt
+from .fs_state_manager import FileSystemStateManager
 
-__all__ = ["pwd", "ls", "echo", "grep", "history", "cat", "exit", "whoami", "Getch", "prompt"]
+__all__ = ["pwd", "ls", "echo", "grep", "history", "cat", "exit", "whoami", "Getch", "prompt", "fs_state_manager"]

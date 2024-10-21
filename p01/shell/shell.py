@@ -13,7 +13,7 @@ from api.routes.write_file import Write_file
 from database.sqliteCRUD import SqliteCRUD
 
 # Initialize your database connection (you may need to update this path)
-fsDB = SqliteCRUD("./database/data/filesystem.db")
+fsDB = SqliteCRUD("../database/data/filesystem.db")
 
 # Dictionary to store the commands
 cmds = {}
@@ -29,11 +29,11 @@ ppointer = {
     "current_path" : "/",
     "current_dir" : "/",
     "pid" : "1",
-    "old" : "1"
+    "oid" : "1"
 }
 
 # Get the prompt string
-prompt = prompt()
+# prompt = prompt()
 
 def print_cmd(cmd):
     """This function "cleans" off the command line, then prints
@@ -41,7 +41,7 @@ def print_cmd(cmd):
     """
     padding = " " * 80
     sys.stdout.write("\r" + padding)
-    sys.stdout.write("\r" + prompt + cmd)
+    sys.stdout.write("\r" + cmd_pkg.prompt() + cmd)
     sys.stdout.flush()
 
 # Dynamically load all functions from cmd_pkg into the dictionary
@@ -75,7 +75,7 @@ if __name__ == "__main__":
     cmd = ""  # empty cmd variable
 
     print_cmd(cmd)  # print to terminal
-
+    cmd_pkg.history(None)
     while True:  # loop forever
 
         char = getch()  # read a character (but don't print)
@@ -130,7 +130,7 @@ if __name__ == "__main__":
             # # This 'elif' simulates something "happening" after pressing return
             # print_cmd("Executing command....")
             # sleep(1)
-
+            cmd_pkg.history(cmd)
             # Check for pipes
             if "|" in cmd:
                 # Split by pipes
@@ -210,12 +210,13 @@ if __name__ == "__main__":
             ## Figure out what your executing like finding pipes and redirects
 
             cmd = ""  # reset command to nothing (since we just executed it)
-
             print_cmd(cmd)  # now print empty cmd prompt
         else:
             cmd += char  # add typed character to our "cmd"
             print_cmd(cmd)  # print the cmd out
-            
+
+
+
 # Get the docstring of a function
 def get_docstring(func_name):
     if func_name in cmds:
