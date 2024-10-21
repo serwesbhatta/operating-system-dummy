@@ -89,17 +89,19 @@ if __name__ == "__main__":
         elif char in "\x1b":  # arrow key pressed
             null = getch()  # waste a character
             direction = getch()  # grab the direction
-            history_contents = cmd_pkg.history(None).split('\n')
+            history_contents = cmd_pkg.history(None).split('\n')  # split history into lines
             if direction in "A":  # up arrow pressed
-                # get the PREVIOUS command from your history (if there is one)
-                # prints out 'up' then erases it (just to show something)
-                # cmd += "\u2191"
-                arrow_count += 1
-                cmd += history_contents[-2][history_contents[-2].index(" "):]
-                # print(history_contents)
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
+        # check if arrow_count is within the valid range of history
+                if arrow_count < len(history_contents) - 1:
+                    arrow_count += 1
+                    # get the command from history, considering how far back we are (arrow_count)
+                    history_command = history_contents[-(arrow_count + 1)].strip()
+                    # update the current command (cmd) with the selected history command
+                    cmd = history_command
+                    print_cmd(cmd)
+                else:
+                    print("\nNo more history.\n")
+
 
             if direction in "B":  # down arrow pressed
                 # get the NEXT command from history (if there is one)
