@@ -71,11 +71,10 @@ def execute_command(main_cmd, args, input_data=None):
 if __name__ == "__main__":
     # Load the commands dynamically from cmd_pkg
     load_commands()
-
+    arrow_count = -1
     cmd = ""  # empty cmd variable
 
     print_cmd(cmd)  # print to terminal
-    cmd_pkg.history(None)
     while True:  # loop forever
 
         char = getch()  # read a character (but don't print)
@@ -90,11 +89,14 @@ if __name__ == "__main__":
         elif char in "\x1b":  # arrow key pressed
             null = getch()  # waste a character
             direction = getch()  # grab the direction
-
+            history_contents = cmd_pkg.history(None).split('\n')
             if direction in "A":  # up arrow pressed
                 # get the PREVIOUS command from your history (if there is one)
                 # prints out 'up' then erases it (just to show something)
-                cmd += "\u2191"
+                # cmd += "\u2191"
+                arrow_count += 1
+                cmd += history_contents[-2][history_contents[-2].index(" "):]
+                # print(history_contents)
                 print_cmd(cmd)
                 sleep(0.3)
                 # cmd = cmd[:-1]
@@ -102,6 +104,7 @@ if __name__ == "__main__":
             if direction in "B":  # down arrow pressed
                 # get the NEXT command from history (if there is one)
                 # prints out 'down' then erases it (just to show something)
+                arrow_count -= 1
                 cmd += "\u2193"
                 print_cmd(cmd)
                 sleep(0.3)

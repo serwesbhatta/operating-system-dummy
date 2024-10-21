@@ -9,9 +9,10 @@ CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
 
-def history(cmd):
+def history(cmd = None):
     file_name = "history.txt"
     result = []
+    result_string = ""
     values = (
             None, 1, 1, file_name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
             1, 1, 1, 1, 0, 1  # Permissions and default values
@@ -25,10 +26,17 @@ def history(cmd):
         # print(file_record)
         if file_record[0][7]!= None:
             count = len(file_record[0][7].split("\n"))
-            new_contents = file_record[0][7] + "\n" + count + " " + cmd
+            new_contents = file_record[0][7] + "\n" + str(count) + " " + cmd
         else:
             new_contents = "0 " + cmd
         # new_contents = None
         fsDB.update_data("files", "contents", new_contents, "id", file_id)  
-        result = new_contents.split("\n")      
-    return result
+        return ""
+    else:
+        filters = {"name": "history.txt", "pid": 1}
+        file_record = fsDB.read_data("files", filters)
+        result = file_record[0][7].split("\n")
+        for i in result:
+            result_string += i+"\n"
+    
+    return result_string
