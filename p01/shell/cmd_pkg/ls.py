@@ -1,5 +1,6 @@
 from texttable import Texttable
 from database.sqliteCRUD import SqliteCRUD
+from .get_flags import get_flags
 
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
@@ -16,20 +17,6 @@ def format_permissions(user_permissions, world_permissions, is_directory=False):
     permission_str += 'r' if world_permissions[0] == 1 else '-'
     permission_str += 'w' if world_permissions[1] == 1 else '-'
     permission_str += 'x' if world_permissions[2] == 1 else '-'
-
-    
-    # # For user permissions
-    # permission_str += 'r' if permission & 0b100000000 else '-'
-    # permission_str += 'w' if permission & 0b010000000 else '-'
-    # permission_str += 'x' if permission & 0b001000000 else '-'
-    
-    # # Group permissions (we don't have them, so "---")
-    # permission_str += "---"
-    
-    # # For others/world permissions
-    # permission_str += 'r' if permission & 0b000000100 else '-'
-    # permission_str += 'w' if permission & 0b000000010 else '-'
-    # permission_str += 'x' if permission & 0b000000001 else '-'
     
     return permission_str
 
@@ -46,12 +33,17 @@ def ls(params=None):
     # Parse the parameters (flags)
     show_hidden = False
     long_format = False
+    human_format = False
+
+    flags = get_flags(params)
     
-    if params:
-        if "-a" in params:
+    if flags:
+        if "a" in flags:
             show_hidden = True
-        if "-l" in params:
+        if "l" in flags:
             long_format = True
+        if "h" in flags:
+            human_format = True
     
     # Fetch files and directories from the database
     current_directory_pid = 1  # This should be dynamic, fetched from the current path manager.
@@ -80,13 +72,13 @@ def ls(params=None):
     
     # Process directories first
     for directory in directories:
-        dir_name = directory[3]  # Assuming 'name' is the 4th column
-        dir_user_permissions = directory[6:9]  # Assuming 'permissions' are the 7th column
-        dir_world_permissions = directory[9:12]  # Assuming 'permissions' are the 7th column
-        dir_owner_id = directory[2]  # Assuming 'owner_id' is the 3rd column
+        dir_name = directory[3]
+        dir_user_permissions = directory[6:9]
+        dir_world_permissions = directory[9:12]
+        dir_owner_id = directory[2]
         dir_owner_name = get_owner_name(fsDB, dir_owner_id)
-        dir_created_at = directory[4]  # Assuming 'created_at' is the 5th column
-        dir_modified_at = directory[5]  # Assuming 'modified_at' is the 6th column
+        dir_created_at = directory[4]
+        dir_modified_at = directory[5]
 
         # Skip hidden directories unless -a is provided
         if not show_hidden and dir_name.startswith('.'):
@@ -101,14 +93,14 @@ def ls(params=None):
 
     # Process files
     for file_entry in files:
-        file_name = file_entry[3]  # Assuming 'name' is the 4th column
-        file_size = file_entry[4]  # Assuming 'size' is the 5th column
-        file_user_permissions = file_entry[8:11]  # Assuming 'permissions' is the 9th column
-        file_world_permissions = file_entry[11:14]  # Assuming 'permissions' is the 9th column
-        file_owner_id = file_entry[2]  # Assuming 'owner_id' is the 3rd column
+        file_name = file_entry[3]
+        file_size = file_entry[4]
+        file_user_permissions = file_entry[8:11]
+        file_world_permissions = file_entry[11:14]
+        file_owner_id = file_entry[2]
         file_owner_name = get_owner_name(fsDB, file_owner_id)
-        file_created_at = file_entry[5]  # Assuming 'created_at' is the 7th column
-        file_modified_at = file_entry[6]  # Assuming 'modified_at' is the 8th column
+        file_created_at = file_entry[5]
+        file_modified_at = file_entry[6]
 
         # Skip hidden files unless -a is provided
         if not show_hidden and file_name.startswith('.'):
