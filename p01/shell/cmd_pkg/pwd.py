@@ -1,5 +1,5 @@
 # cmd_pkg/pwd.py
-from cmd_pkg.cwd_manager import cwd_manager
+from .fs_state_manager import Fs_state_manager
 
 def pwd():
-    return cwd_manager.get_path()
+    return Fs_state_manager.get_path()

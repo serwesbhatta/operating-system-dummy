@@ -1,7 +1,7 @@
-import os
-import sys
+import os, sys
+
+print(sys.path)
 from time import sleep
-from cmd_pkg import *
 import importlib
 import pkgutil
 import cmd_pkg
@@ -9,8 +9,14 @@ import cmd_pkg
 # Import the Write_file function from your API
 from api.routes.write_file import Write_file
 
+# Add the project root to sys.path to fix imports
+sys.path.append(os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+
 # Ensure fsDB is available, import it from your main API or initialize it
 from database.sqliteCRUD import SqliteCRUD
+
+#  Import commands
+from cmd_pkg import *
 
 # Initialize your database connection (you may need to update this path)
 fsDB = SqliteCRUD("./database/data/filesystem.db")
@@ -23,14 +29,6 @@ cmds = {}
 ##################################################################################
 
 getch = Getch()  # create instance of our getch class
-
-# Used as a pointer in the terminal
-ppointer = {
-    "current_path" : "/",
-    "current_dir" : "/",
-    "pid" : "1",
-    "old" : "1"
-}
 
 # Get the prompt string
 prompt = prompt()
