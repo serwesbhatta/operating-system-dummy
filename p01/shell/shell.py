@@ -56,6 +56,10 @@ def load_commands():
             if callable(obj) and not name.startswith("__"):
                 cmds[name] = obj
 
+# # Function to get flags
+# def get_flags(args):
+    
+
 # Helper function to execute a single command
 def execute_command(main_cmd, args, input_data=None):
     if main_cmd in cmds:

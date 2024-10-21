@@ -3,22 +3,33 @@ from database.sqliteCRUD import SqliteCRUD
 
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
-def format_permissions(permission, is_directory=False):
+def format_permissions(user_permissions, world_permissions, is_directory=False):
     """Convert permission numbers into rwx format for user/group/others."""
     permission_str = 'd' if is_directory else '-'
+
+    permission_str += 'r' if user_permissions[0] == 1 else '-'
+    permission_str += 'w' if user_permissions[1] == 1 else '-'
+    permission_str += 'x' if user_permissions[2] == 1 else '-'
+
+    permission_str += '---'
+
+    permission_str += 'r' if world_permissions[0] == 1 else '-'
+    permission_str += 'w' if world_permissions[1] == 1 else '-'
+    permission_str += 'x' if world_permissions[2] == 1 else '-'
+
     
-    # For user permissions
-    permission_str += 'r' if permission & 0b100000000 else '-'
-    permission_str += 'w' if permission & 0b010000000 else '-'
-    permission_str += 'x' if permission & 0b001000000 else '-'
+    # # For user permissions
+    # permission_str += 'r' if permission & 0b100000000 else '-'
+    # permission_str += 'w' if permission & 0b010000000 else '-'
+    # permission_str += 'x' if permission & 0b001000000 else '-'
     
-    # Group permissions (we don't have them, so "---")
-    permission_str += "---"
+    # # Group permissions (we don't have them, so "---")
+    # permission_str += "---"
     
-    # For others/world permissions
-    permission_str += 'r' if permission & 0b000000100 else '-'
-    permission_str += 'w' if permission & 0b000000010 else '-'
-    permission_str += 'x' if permission & 0b000000001 else '-'
+    # # For others/world permissions
+    # permission_str += 'r' if permission & 0b000000100 else '-'
+    # permission_str += 'w' if permission & 0b000000010 else '-'
+    # permission_str += 'x' if permission & 0b000000001 else '-'
     
     return permission_str
 
@@ -30,7 +41,7 @@ def get_owner_name(fsDB, owner_id):
         return user_record[0][1]  # Assuming username is the second column in the 'users' table
     return "unknown"
 
-def ls(fsDB: SqliteCRUD, params=None):
+def ls(params=None):
     """Simulates the ls command with flags -a, -l, and -h."""
     # Parse the parameters (flags)
     show_hidden = False
@@ -59,6 +70,9 @@ def ls(fsDB: SqliteCRUD, params=None):
     # Prepare table output
     table = Texttable()
     table.set_deco(Texttable.HEADER)
+
+    # Set a maximum width (you can adjust the value to your needs)
+    table.set_max_width(0)  # 0 allows for unlimited width
     
     # If long format, add headers for permissions, owner, size, and date
     if long_format:
@@ -67,7 +81,8 @@ def ls(fsDB: SqliteCRUD, params=None):
     # Process directories first
     for directory in directories:
         dir_name = directory[3]  # Assuming 'name' is the 4th column
-        dir_permissions = directory[6]  # Assuming 'permissions' are the 7th column
+        dir_user_permissions = directory[6:9]  # Assuming 'permissions' are the 7th column
+        dir_world_permissions = directory[9:12]  # Assuming 'permissions' are the 7th column
         dir_owner_id = directory[2]  # Assuming 'owner_id' is the 3rd column
         dir_owner_name = get_owner_name(fsDB, dir_owner_id)
         dir_created_at = directory[4]  # Assuming 'created_at' is the 5th column
@@ -79,7 +94,7 @@ def ls(fsDB: SqliteCRUD, params=None):
 
         if long_format:
             # Build the output for long listing (-l) format
-            permissions_str = format_permissions(dir_permissions, is_directory=True)
+            permissions_str = format_permissions(dir_user_permissions, dir_world_permissions,is_directory=True)
             table.add_row([permissions_str, dir_owner_name, dir_owner_id, 0, dir_created_at, dir_modified_at, f"{dir_name}/"])
         else:
             table.add_row([f"{dir_name}/"])
@@ -88,11 +103,12 @@ def ls(fsDB: SqliteCRUD, params=None):
     for file_entry in files:
         file_name = file_entry[3]  # Assuming 'name' is the 4th column
         file_size = file_entry[4]  # Assuming 'size' is the 5th column
-        file_permissions = file_entry[8]  # Assuming 'permissions' is the 9th column
+        file_user_permissions = file_entry[8:11]  # Assuming 'permissions' is the 9th column
+        file_world_permissions = file_entry[11:14]  # Assuming 'permissions' is the 9th column
         file_owner_id = file_entry[2]  # Assuming 'owner_id' is the 3rd column
         file_owner_name = get_owner_name(fsDB, file_owner_id)
-        file_created_at = file_entry[6]  # Assuming 'created_at' is the 7th column
-        file_modified_at = file_entry[7]  # Assuming 'modified_at' is the 8th column
+        file_created_at = file_entry[5]  # Assuming 'created_at' is the 7th column
+        file_modified_at = file_entry[6]  # Assuming 'modified_at' is the 8th column
 
         # Skip hidden files unless -a is provided
         if not show_hidden and file_name.startswith('.'):
@@ -100,7 +116,7 @@ def ls(fsDB: SqliteCRUD, params=None):
 
         if long_format:
             # Build the output for long listing (-l) format
-            permissions_str = format_permissions(file_permissions)
+            permissions_str = format_permissions(file_user_permissions, file_world_permissions)
             table.add_row([permissions_str, file_owner_name, file_owner_id, file_size, file_created_at, file_modified_at, file_name])
         else:
             table.add_row([file_name])
