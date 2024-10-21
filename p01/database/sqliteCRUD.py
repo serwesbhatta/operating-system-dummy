@@ -78,7 +78,29 @@ class SqliteCRUD:
         self.cursor.execute(query, (file_name, directory_pid))
         count = self.cursor.fetchone()[0]
         return count > 0
+    
+    def file_exists(self, file_name, pid):
+        """Check if a file exists in the given directory (pid)."""
+        query = "SELECT COUNT(*) FROM files WHERE name = ? AND pid = ?"
+        result = self.execute(query, (file_name, pid))
+        return result[0][0] > 0  # Return True if file exists
 
+    def get_file_contents(self, file_name, pid):
+        """Retrieve the contents of a file in the given directory (pid)."""
+        query = "SELECT contents FROM files WHERE name = ? AND pid = ?"
+        result = self.execute(query, (file_name, pid))
+        if result:
+            return result[0][0]  # Return the contents (as BLOB)
+        return None
+
+    def execute(self, query, params=None):
+        """Execute a query with optional parameters."""
+        if params is None:
+            self.cursor.execute(query)
+        else:
+            self.cursor.execute(query, params)
+        self.conn.commit()
+        return self.cursor.fetchall()
 
     def close_connection(self):
         """Close the database connection."""
