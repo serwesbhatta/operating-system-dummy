@@ -1,6 +1,5 @@
 import os, sys
 
-print(sys.path)
 from time import sleep
 import importlib
 import pkgutil
