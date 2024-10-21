@@ -9,6 +9,7 @@ from database.sqliteCRUD import SqliteCRUD
 from time import sleep
 import importlib
 import pkgutil
+import cmd_pkg
 
 # Import the Write_file function from your API
 from api.routes.write_file import Write_file
