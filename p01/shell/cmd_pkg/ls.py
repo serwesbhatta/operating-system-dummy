@@ -26,7 +26,7 @@ def get_owner_name(fsDB, owner_id):
     """Fetch the username of the owner based on the owner_id from the 'users' table."""
     filters = {"user_id": owner_id}
     user_record = fsDB.read_data("users", filters)
-    if user_record:``
+    if user_record:
         return user_record[0][1]  # Assuming username is the second column in the 'users' table
     return "unknown"
 
