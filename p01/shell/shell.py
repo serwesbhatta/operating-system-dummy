@@ -82,6 +82,7 @@ if __name__ == "__main__":
     load_commands()
     arrow_count = -1
     cmd = ""  # empty cmd variable
+    cursor_position = len(cmd) 
 
     print_cmd(cmd)  # print to terminal
     cmd_pkg.history(None)
@@ -136,22 +137,14 @@ if __name__ == "__main__":
 
 
             if direction in "C":  # right arrow pressed
-                # move the cursor to the right on your command prompt line
-                # prints out 'right' then erases it (just to show something)
-                cmd += "\u2192"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
+                if cursor_position < len(cmd):  # Ensure we don't go past the end of the command
+                    cursor_position += 1
+                    print("\x1b[C", end="", flush=True)  # Move the cursor right
 
             if direction in "D":  # left arrow pressed
-                # moves the cursor to the left on your command prompt line
-                # prints out 'left' then erases it (just to show something)
-                cmd += "\u2190"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
-
-            print_cmd(cmd)  # print the command (again)
+                if cursor_position > 0:  # Ensure we don't go past the start of the command
+                    cursor_position -= 1  # Move cursor one position back
+                    print("\x1b[D", end="", flush=True)  # Move the cursor left
 
         elif char in "\r":  # return pressed
 

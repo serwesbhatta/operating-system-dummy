@@ -1,8 +1,10 @@
 import re
 from .get_flags import get_flags
+from api.routes import Read_file
+from .fs_state_manager import Fs_state_manager
 from database.sqliteCRUD import SqliteCRUD
-from cmd_pkg.fs_state_manager import Fs_state_manager
 
+# Ensure fsDB is initialized (you might need to adjust the path)
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
 def grep(params):
@@ -27,12 +29,11 @@ def grep(params):
 
     for filename in files:
         try:
-            # Get current directory's pid
+            # Get current directory's pid and user ID
             oid = Fs_state_manager.get_oid()
 
-            # Fetch file content using API; ensure you handle errors or non-existence properly
-            file_content = fsDB.(filename, oid)
-            print(file_content)
+            # Fetch file content using Read_file function
+            file_content = Read_file(fsDB, filename, oid)  # Pass fsDB, filename, and user_id
             if file_content:
                 lines = file_content.split('\n')
                 matches = [line for line in lines if re.search(pattern, line, re.IGNORECASE if case_insensitive else 0)]
