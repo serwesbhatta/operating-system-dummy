@@ -4,16 +4,21 @@ from cmd_pkg.fs_state_manager import Fs_state_manager
 
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
-def cd(params):
+def cd(params=None):
     from shell import ppointer
+
+    # If params is None, treat it as an empty list
+    if params is None:
+        params = []
 
     current_pid = Fs_state_manager.get_pid()
 
     # Determine the new directory based on input parameters
     if len(params) == 0:
-        new_dir = "~"  # Default to home directory
-    else:
-        new_dir = params[0]
+        print(f"\nNo directory specified. Current path: {Fs_state_manager.get_path()}")
+        return ""  # Do nothing and keep the path unchanged
+
+    new_dir = params[0]
 
     # Handle the root directory change
     if new_dir == "~":
@@ -73,3 +78,4 @@ def cd(params):
     ppointer["current_dir"] = new_dir
     print(f"\nChanged directory to: {Fs_state_manager.get_path()}")
     return ""
+
