@@ -1,5 +1,6 @@
 from fastapi import HTTPException
 from database.sqliteCRUD import SqliteCRUD
+from .base64isCrazy import decodeIt
 
 def Read_file(fsDB: SqliteCRUD, filename: str, user_id: int):
     """
@@ -10,7 +11,8 @@ def Read_file(fsDB: SqliteCRUD, filename: str, user_id: int):
     if fsDB:
         response = fsDB.get_file_content(filename, user_id)
         if response["success"]:
-            content = response["content"].decode('utf-8')
+            content = response["content"]
+            content = decodeIt(content)
             return content
         else:
             raise HTTPException(status_code=response["status"], detail=response["message"])
