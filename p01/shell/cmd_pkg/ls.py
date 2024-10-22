@@ -1,12 +1,7 @@
 from texttable import Texttable
 from database.sqliteCRUD import SqliteCRUD
 from .get_flags import get_flags
-<<<<<<< HEAD
-from .fs_state_manager import Fs_state_manager
-=======
 from cmd_pkg.fs_state_manager import Fs_state_manager
-
->>>>>>> cc0a6b769d067b5f10b4a7ce09f1144ccd07cf20
 
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
