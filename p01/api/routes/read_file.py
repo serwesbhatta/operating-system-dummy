@@ -10,7 +10,7 @@ def Read_file(fsDB: SqliteCRUD, filename: str, user_id: int):
     if fsDB:
         response = fsDB.get_file_content(filename, user_id)
         if response["success"]:
-            content = response["content"].decode('utf-8')
+            content = response["content"]  # No need to decode, assuming it's already a string
             return content
         else:
             raise HTTPException(status_code=response["status"], detail=response["message"])
