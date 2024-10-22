@@ -26,7 +26,7 @@ def grep(params):
         return "Error: No files provided."
 
     results = []
-
+    
     for filename in files:
         try:
             # Get current directory's pid and user ID
