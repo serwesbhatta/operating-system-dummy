@@ -1,7 +1,12 @@
-import os
-import sys
+import os, sys
+
+# Add the parent directory to the system path to import 'database'
+sys.path.append(os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+# Ensure fsDB is available, import it from your main API or initialize it
+from database.sqliteCRUD import SqliteCRUD
+
 from time import sleep
-from cmd_pkg import *
 import importlib
 import pkgutil
 import cmd_pkg
@@ -9,8 +14,8 @@ import cmd_pkg
 # Import the Write_file function from your API
 from api.routes.write_file import Write_file
 
-# Ensure fsDB is available, import it from your main API or initialize it
-from database.sqliteCRUD import SqliteCRUD
+#  Import commands
+from cmd_pkg import *
 
 # Initialize your database connection (you may need to update this path)
 fsDB = SqliteCRUD("../database/data/filesystem.db")
@@ -23,14 +28,6 @@ cmds = {}
 ##################################################################################
 
 getch = Getch()  # create instance of our getch class
-
-# Used as a pointer in the terminal
-ppointer = {
-    "current_path" : "/",
-    "current_dir" : "/",
-    "pid" : "1",
-    "oid" : "1"
-}
 
 # Get the prompt string
 # prompt = prompt()
@@ -59,6 +56,10 @@ def load_commands():
             if callable(obj) and not name.startswith("__"):
                 cmds[name] = obj
 
+# # Function to get flags
+# def get_flags(args):
+    
+
 # Helper function to execute a single command
 def execute_command(main_cmd, args, input_data=None):
     if main_cmd in cmds:
@@ -75,6 +76,7 @@ if __name__ == "__main__":
     cmd = ""  # empty cmd variable
 
     print_cmd(cmd)  # print to terminal
+    cmd_pkg.history(None)
     while True:  # loop forever
 
         char = getch()  # read a character (but don't print)
@@ -102,6 +104,13 @@ if __name__ == "__main__":
                 else:
                     print("\nNo more history.\n")
 
+            if direction in "A":  # up arrow pressed
+                # get the PREVIOUS command from your history (if there is one)
+                # prints out 'up' then erases it (just to show something)
+                cmd += "\u2191"
+                print_cmd(cmd)
+                sleep(0.3)
+                # cmd = cmd[:-1]
 
             if direction in "B":  # down arrow pressed
                 # get the NEXT command from history (if there is one)
