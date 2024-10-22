@@ -9,8 +9,34 @@ def cd(params):
 
     current_pid = Fs_state_manager.get_pid()
 
+    # Determine the new directory based on input parameters
     if len(params) == 0:
-        new_dir = "~"
+        new_dir = "~"  # Default to home directory
+    else:
+        new_dir = params[0]
+
+    # Handle the root directory change
+    if new_dir == "~":
+        Fs_state_manager.set_path(["~"])
+        Fs_state_manager.set_pid(1)
+    elif new_dir.startswith("/"):  # Absolute path
+        # Split the absolute path into parts and check each part
+        path_parts = new_dir.strip("/").split("/")
+        new_path = []
+        temp_pid = 1  # Start at the root PID
+
+        for part in path_parts:
+            if fsDB.directory_exists(part, temp_pid):
+                new_path.append(part)
+                temp_pid = fsDB.get_directory_pid(part, temp_pid)
+            else:
+                print(f"\nError: Directory '{part}' does not exist in the path '{new_dir}'.\n")
+                return ""
+
+        # Set the new path and PID
+        Fs_state_manager.set_path(new_path)
+        Fs_state_manager.set_pid(temp_pid)
+        
     elif params[0] == "..":
         # Go to the parent directory
         if current_pid > 1:
@@ -24,30 +50,22 @@ def cd(params):
         else:
             new_dir = "~"  # Already at root, stay there
     else:
-        new_dir = params[0]
-
-    # Handle the root directory change
-    if new_dir == "~":
-        Fs_state_manager.set_path(["~"])
-        Fs_state_manager.set_pid(1)
-    elif fsDB.directory_exists(new_dir, current_pid):
-        # If the directory exists and is not the current path
+        # Relative path handling
         current_path = Fs_state_manager.get_path().split("/")
-        if new_dir not in current_path:
-            Fs_state_manager.set_path(Fs_state_manager.current_path + [new_dir])
-            new_pid = fsDB.get_directory_pid(new_dir, current_pid)
-            Fs_state_manager.set_pid(new_pid)
-        else:
-            print(f"\nWarning: You are already in the directory '{new_dir}'.\n")
+        if fsDB.directory_exists(new_dir, current_pid):
+            # If the directory exists and is not the current path
+            if new_dir not in current_path:
+                Fs_state_manager.set_path(current_path + [new_dir])
+                new_pid = fsDB.get_directory_pid(new_dir, current_pid)
+                Fs_state_manager.set_pid(new_pid)
+            else:
+                print(f"\nWarning: You are already in the directory '{new_dir}'.\n")
+                return ""
+        elif fsDB.file_belongs_to_directory(new_dir, current_pid):
+            # If the specified path is a file in the current directory
+            print(f"\n'{new_dir}' is a file. Would you like to open it? (Yes/No)\n")
             return ""
-    elif fsDB.file_belongs_to_directory(new_dir, current_pid):
-        # If the specified path is a file in the current directory
-        print(f"\n'{new_dir}' is a file. Would you like to open it? (Yes/No)\n")
-        # You can add logic here to open the file or show its contents if needed
-        return ""
-    else:
-        # Error message only if it's not a parent directory move
-        if params[0] != "..":
+        else:
             print(f"\nError: '{new_dir}' does not exist or is not accessible from the current directory '{Fs_state_manager.get_path()}'.\n")
             return ""
 

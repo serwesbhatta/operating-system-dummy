@@ -1,58 +1,40 @@
-#!/usr/bin/env python
-from subprocess import call
+import os
+from database.sqliteCRUD import SqliteCRUD
+from cmd_pkg.fs_state_manager import Fs_state_manager
 
-def cat(**kwargs):
-    """   
-    NAME
-        cat - concatenate files and print on the standard output
-    SYNOPSIS
-        cat [OPTION]... [FILE]...
-    DESCRIPTION
-        Concatenate FILE(s) to standard output.
+fsDB = SqliteCRUD("../database/data/filesystem.db")
 
-        -A, --show-all
-                equivalent to -vET
+def cat(params):
+    """Display the contents of a file."""
+    from shell import ppointer
 
-        -b, --number-nonblank
-                number nonempty output lines, overrides -n
+    if len(params) == 0:
+        print("\nError: No file specified.\n")
+        return
 
-        -e     equivalent to -vE
+    file_name = params[0]
+    current_pid = Fs_state_manager.get_pid()
 
-        -E, --show-ends
-                display $ at end of each line
+    # Check if the file exists in the current directory
+    if fsDB.file_exists(file_name, current_pid):
+        # Fetch the file contents from the database
+        file_contents = fsDB.get_file_contents(file_name, current_pid)
 
-        -n, --number
-                number all output lines
+        if file_contents is not None:
+            # Check if the content is binary
+            if isinstance(file_contents, bytes):
+                try:
+                    # Try to decode the binary data as UTF-8 (text file)
+                    decoded_contents = file_contents.decode('utf-8')
+                    print(f"\n{decoded_contents}\n")
+                except UnicodeDecodeError:
+                    print(f"\nError: File '{file_name}' contains binary data and cannot be displayed as text.\n")
+            else:
+                # If it's already a string, just print it
+                print(f"\n{file_contents}\n")
+        else:
+            print(f"\nError: Could not read the contents of '{file_name}'.\n")
+    else:
+        print(f"\nError: File '{file_name}' does not exist in the current directory.\n")
 
-        -s, --squeeze-blank
-                suppress repeated empty output lines
-
-        -t     equivalent to -vT
-
-        -T, --show-tabs
-                display TAB characters as ^I
-
-        --help display this help and exit
-
-        --version
-                output version information and exit
-    EXAMPLES
-        cat f - g
-                Output f's contents, then standard input, then g's contents.
-
-        cat    Copy standard input to standard output.
-    """
-    if 'params' in kwargs:
-        params = kwargs['params']
-    if 'flags' in kwargs:
-        flags = kwargs['flags']
-    command = ["cat"]
-
-    for f in params:
-        command.append(f)
-
-    call(command)
-
-    if __name__=='__main__':
-        cat(files=['somefile','otherfile'])
-        
+    return ""
