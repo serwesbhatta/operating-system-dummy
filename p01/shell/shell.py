@@ -91,6 +91,18 @@ if __name__ == "__main__":
         elif char in "\x1b":  # arrow key pressed
             null = getch()  # waste a character
             direction = getch()  # grab the direction
+            history_contents = cmd_pkg.history(None).split('\n')  # split history into lines
+            if direction in "A":  # up arrow pressed
+        # check if arrow_count is within the valid range of history
+                if arrow_count < len(history_contents) - 1:
+                    arrow_count += 1
+                    # get the command from history, considering how far back we are (arrow_count)
+                    history_command = history_contents[-(arrow_count + 1)].strip()
+                    # update the current command (cmd) with the selected history command
+                    cmd = history_command.split(maxsplit=1)[-1] if ' ' in history_command else history_command
+                    print_cmd(cmd)
+                else:
+                    print("\nNo more history.\n")
 
             if direction in "A":  # up arrow pressed
                 # get the PREVIOUS command from your history (if there is one)
@@ -103,11 +115,24 @@ if __name__ == "__main__":
             if direction in "B":  # down arrow pressed
                 # get the NEXT command from history (if there is one)
                 # prints out 'down' then erases it (just to show something)
-                cmd += "\u2193"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
+                # Check if we can move down in the history
+                if arrow_count > 0:
+                    arrow_count -= 1
+            # Get the command for the current position in history after decrement
+                    if arrow_count < len(history_contents):
+                        history_command = history_contents[-(arrow_count + 1)].strip()
 
+                        # Update the current command (cmd) with the selected history command
+                        cmd = history_command.split(maxsplit=1)[-1] if ' ' in history_command else history_command
+                        print_cmd(cmd)
+                    else:
+                    # If we're at the end of history, clear the command
+                        cmd = ""
+                        print_cmd(cmd)  # Clear the command display
+                else:
+                    print("\nNo more history.\n")
+
+                    
             if direction in "C":  # right arrow pressed
                 # move the cursor to the right on your command prompt line
                 # prints out 'right' then erases it (just to show something)
