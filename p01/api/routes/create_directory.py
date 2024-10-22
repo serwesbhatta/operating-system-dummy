@@ -1,19 +1,17 @@
 from fastapi import HTTPException
 from datetime import datetime
-
 from database.sqliteCRUD import SqliteCRUD
 
-CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-
-def Create_directory(fsDB: SqliteCRUD, directory_name: str):
+def Create_directory(fsDB: SqliteCRUD, directory_name: str, parent_id: int, owner_id: int = None):
     """
     Create a new directory in the simulated filesystem and log the action in the database.
     :param directory_name: The name of the new directory.
+    :param parent_id: The ID of the parent directory.
+    :param owner_id: The ID of the owner (optional).
     """
     if fsDB:
         # Check if the directory already exists
-        parent = 1
-        filters = {"name": directory_name, "pid": parent}  # Assuming root directory
+        filters = {"name": directory_name, "pid": parent_id}  # Assuming the parent_id
         existing_dir = fsDB.read_data("directories", filters)
          
         if existing_dir:
@@ -21,7 +19,7 @@ def Create_directory(fsDB: SqliteCRUD, directory_name: str):
         
         # Insert the new directory into the database
         fsDB.insert_data(
-            "directories", (None, parent, None, directory_name, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP,
+            "directories", (None, parent_id, owner_id, directory_name, datetime.now(), datetime.now(),
             1, 0, 1, 1, 0, 1)  # Permissions and default values
         )
         

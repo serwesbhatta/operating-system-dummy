@@ -7,6 +7,6 @@ def Insert_data(cursor, conn, table_name, data):
             insert_query = f"INSERT INTO {table_name} VALUES ({placeholders});"
             cursor.execute(insert_query, data)
             conn.commit()
-            print("Data inserted successfully.")
+            print("\nData inserted successfully.")
         except sqlite3.Error as e:
             print(f"Error inserting data: {e}")
