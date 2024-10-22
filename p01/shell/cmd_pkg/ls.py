@@ -4,6 +4,14 @@ from .get_flags import get_flags
 
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
+def human_readable_size(size):
+    """Convert size in bytes to a human-readable format."""
+    for unit in ['', 'K', 'M', 'G', 'T', 'P']:
+        if size < 1024:
+            return f"{size:.1f}{unit}B"
+        size /= 1024
+    return f"{size:.1f}PB"  # In case size is very large
+
 def format_permissions(user_permissions, world_permissions, is_directory=False):
     """Convert permission numbers into rwx format for user/group/others."""
     permission_str = 'd' if is_directory else '-'
@@ -63,7 +71,7 @@ def ls(params=None):
     table = Texttable()
     table.set_deco(Texttable.HEADER)
 
-    # Set a maximum width (you can adjust the value to your needs)
+    # Set a maximum width
     table.set_max_width(0)  # 0 allows for unlimited width
     
     # If long format, add headers for permissions, owner, size, and date
@@ -107,6 +115,10 @@ def ls(params=None):
             continue
 
         if long_format:
+            # Convert size to human-readable format if -h is provided
+            if human_format:
+                file_size = human_readable_size(file_size)
+
             # Build the output for long listing (-l) format
             permissions_str = format_permissions(file_user_permissions, file_world_permissions)
             table.add_row([permissions_str, file_owner_name, file_owner_id, file_size, file_created_at, file_modified_at, file_name])
