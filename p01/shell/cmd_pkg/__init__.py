@@ -11,6 +11,7 @@ from .prompt import prompt
 from .more import more
 from .less import less
 from .head import head
+from .chmod import chmod
 from .fs_state_manager import FileSystemStateManager
 
-__all__ = ["pwd", "ls", "echo", "grep", "history", "cat", "exit", "whoami", "Getch", "prompt", "FileSystemStateManager", "more", "less", "head"]
+__all__ = ["pwd", "ls", "echo", "grep", "history", "cat", "exit", "whoami", "Getch", "prompt", "FileSystemStateManager", "more", "less", "head", "chmod"]

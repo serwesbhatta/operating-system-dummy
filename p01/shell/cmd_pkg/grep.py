@@ -7,47 +7,61 @@ from database.sqliteCRUD import SqliteCRUD
 # Ensure fsDB is initialized (you might need to adjust the path)
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
-def grep(params):
-    # Initial setup for flags
+def grep(params, input_data=None):
+    if not params:
+        return "Error: No parameters provided."
+
+    # Initial setup for flags and separate filenames from flags
     flags = get_flags(params)
     case_insensitive = 'i' in flags
     count_matches = 'c' in flags
     list_filenames = 'l' in flags
 
-    # Identify where the pattern and filenames start
-    pattern_index = next((i for i, item in enumerate(params) if not item.startswith('-')), None)
-    if pattern_index is None:
+    # Find the pattern and the files to process
+    files = []
+    pattern = None
+    reading_files = False
+    for index, item in enumerate(params):
+        if item.startswith('-') and not reading_files:
+            continue  # Skip flags before the pattern
+        elif not pattern and not item.startswith('-'):
+            pattern = item
+            # Only take the next item as filename if it exists and is not a flag
+            if index + 1 < len(params) and not params[index + 1].startswith('-'):
+                files.append(params[index + 1])
+            break  # Stop processing after finding the pattern and optional file
+
+    if not pattern:
         return "Error: No pattern provided."
-
-    pattern = params[pattern_index]
-    files = params[pattern_index + 1:]  # Everything after the pattern is considered a filename
-
-    if not files:
-        return "Error: No files provided."
+    if not files and not input_data:
+        return "Error: No files provided or no input data."
 
     results = []
 
-    for filename in files:
-        try:
-            # Get current directory's pid and user ID
-            oid = Fs_state_manager.get_oid()
-            user_id = 1  # Assuming static user ID (you can replace this with dynamic user ID if needed)
+    # Function to search content
+    def search_content(content, filename=""):
+        lines = content.split('\n')
+        matches = [line for line in lines if re.search(pattern, line, re.IGNORECASE if case_insensitive else 0)]
 
-            # Fetch file content using Read_file function
-            file_content = Read_file(fsDB, filename, user_id)  # Pass fsDB, filename, and user_id
-            if file_content:
-                lines = file_content.split('\n')
-                matches = [line for line in lines if re.search(pattern, line, re.IGNORECASE if case_insensitive else 0)]
+        if matches:
+            if list_filenames:
+                return [filename] if filename else []
+            elif count_matches:
+                return [f"{filename}: {len(matches)}"] if filename else [f"{len(matches)}"]
+            else:
+                return [f"{line}" for line in matches] if filename else matches
+        return []
 
-                if matches:
-                    if list_filenames:
-                        results.append(filename)
-                    elif count_matches:
-                        results.append(f"{filename}: {len(matches)}")
-                    else:
-                        results.extend(f"{filename}: {line}" for line in matches)
-        except Exception as e:
-            # Handle exceptions such as HTTPExceptions from failed API calls
-            results.append(f"Error reading file {filename}: {str(e)}")
+    # Process input data if provided
+    if input_data:
+        results.extend(search_content(input_data))
+    else:
+        for filename in files:
+            try:
+                file_content = Read_file(fsDB, filename, user_id=1)  # Assuming static user ID
+                if file_content:
+                    results.extend(search_content(file_content, filename))
+            except Exception as e:
+                results.append(f"Error reading file {filename}: {str(e)}")
 
     return '\n'.join(results)

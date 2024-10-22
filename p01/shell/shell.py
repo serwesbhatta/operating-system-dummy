@@ -71,8 +71,11 @@ def load_commands():
 # Helper function to execute a single command
 def execute_command(main_cmd, args, input_data=None):
     if main_cmd in cmds:
-        # Call the function with or without parameters
-        result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
+        # Check if the command can accept input data and provide it if available
+        if input_data is not None and 'accepts_input' in cmds[main_cmd]:
+            result = cmds[main_cmd](params=args, input=input_data)
+        else:
+            result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
         return result
     else:
         return f"Error: Command '{main_cmd}' not found."
