@@ -28,7 +28,6 @@ def Read_data(cursor, table_name, filters=None):
                 # print(results)
                 return results
             else:
-                print("No data found in the table.")
                 return []
         except sqlite3.Error as e:
             print(f"Error reading data: {e}")
