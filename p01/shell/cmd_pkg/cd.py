@@ -77,5 +77,6 @@ def cd(params=None):
     ppointer["current_path"] = Fs_state_manager.get_path()
     ppointer["current_dir"] = new_dir
     print(f"\nChanged directory to: {Fs_state_manager.get_path()}")
+    Fs_state_manager.current_directory = last_folder = ppointer["current_path"].split('/')[-1]
     return ""
 
