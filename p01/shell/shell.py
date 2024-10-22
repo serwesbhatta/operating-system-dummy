@@ -72,7 +72,7 @@ def execute_command(main_cmd, args, input_data=None):
 if __name__ == "__main__":
     # Load the commands dynamically from cmd_pkg
     load_commands()
-
+    arrow_count = -1
     cmd = ""  # empty cmd variable
 
     print_cmd(cmd)  # print to terminal
