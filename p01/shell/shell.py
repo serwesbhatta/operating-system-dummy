@@ -32,6 +32,14 @@ getch = Getch()  # create instance of our getch class
 # Get the prompt string
 # prompt = prompt()
 
+# Used as a pointer in the terminal
+ppointer = {
+    "current_path" : "/",
+    "current_dir" : "/",
+    "pid" : "1",
+    "old" : "1"
+}
+
 def print_cmd(cmd):
     """This function "cleans" off the command line, then prints
     whatever cmd that is passed to it to the bottom of the terminal.
@@ -104,13 +112,7 @@ if __name__ == "__main__":
                 else:
                     print("\nNo more history.\n")
 
-            if direction in "A":  # up arrow pressed
-                # get the PREVIOUS command from your history (if there is one)
-                # prints out 'up' then erases it (just to show something)
-                cmd += "\u2191"
-                print_cmd(cmd)
-                sleep(0.3)
-                # cmd = cmd[:-1]
+           
 
             if direction in "B":  # down arrow pressed
                 # get the NEXT command from history (if there is one)
@@ -132,7 +134,7 @@ if __name__ == "__main__":
                 else:
                     print("\nNo more history.\n")
 
-                    
+
             if direction in "C":  # right arrow pressed
                 # move the cursor to the right on your command prompt line
                 # prints out 'right' then erases it (just to show something)
