@@ -1,6 +1,8 @@
 from texttable import Texttable
 from database.sqliteCRUD import SqliteCRUD
 from .get_flags import get_flags
+from cmd_pkg.fs_state_manager import Fs_state_manager
+
 
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
@@ -54,7 +56,7 @@ def ls(params=None):
             human_format = True
     
     # Fetch files and directories from the database
-    current_directory_pid = 1  # This should be dynamic, fetched from the current path manager.
+    current_directory_pid = Fs_state_manager.get_pid()  # This should be dynamic, fetched from the current path manager.
     
     # Fetch files from the 'files' table
     file_filters = {"pid": current_directory_pid}
