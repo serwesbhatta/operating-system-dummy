@@ -43,6 +43,9 @@ class SqliteCRUD:
     def get_file_content(self, filename, oid):
         filters = {"name": filename, "oid" : oid}
         return Get_file_content(self.cursor, filters)
+
+    def set_file_permissions_db(self, table_name, mode, filters = None):
+        return Set_file_permissions_db(self.cursor, self.conn, table_name, mode, filters)
     
     ##def directory_exists(self, directory_name):
        ## return Directory_exists(self.cursor, directory_name)

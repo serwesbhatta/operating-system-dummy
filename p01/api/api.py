@@ -104,6 +104,5 @@ def delete_directory(directory_name: str):
 def list_directories(parent: int = 1):
     return List_directories(fsDB, parent)
 
-
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)
