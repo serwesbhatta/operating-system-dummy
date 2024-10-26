@@ -1,17 +1,20 @@
 from fastapi import HTTPException
 from database.sqliteCRUD import SqliteCRUD
 
-async def Get_files(fsDB: SqliteCRUD, name=None):
+async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """
     if name:
-        filters = {"name": name}
+        filters = {"name": name, "pid": pid}
+    else:
+        filters = {"pid": pid}
     if fsDB:
         if name:
-            files = fsDB.read_data("files", filters)
-        else:
-            files = fsDB.read_data("files")
+            try:
+                files = fsDB.read_data("files", filters)
+            except:
+                raise HTTPException(status_code=404, detail="Could not read data")
         if files:
             return files
         else:
