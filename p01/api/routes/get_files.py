@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from database.sqliteCRUD import SqliteCRUD
 from .get_column_names import Get_column_names
+from .encoder_decoder import decode
 
 async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
     """
@@ -20,7 +21,11 @@ async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
             raise HTTPException(status_code=404, detail="Could not read data")
         if files:
             column_names = await Get_column_names(fsDB, "files")
-            return [dict(zip(column_names, row)) for row in files]
+            rows = [dict(zip(column_names, row)) for row in files]
+            for row in rows:
+                print(row)
+                row["contents"] = decode(row["contents"])
+            return rows
         else:
             raise HTTPException(status_code=404, detail="No files found.")
     else:

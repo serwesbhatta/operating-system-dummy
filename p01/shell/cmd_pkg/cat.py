@@ -1,4 +1,4 @@
-import re, base64
+# from .encoder_decoder import decode
 from cmd_pkg.fs_state_manager import Fs_state_manager
 from .call_api import call_api
 
@@ -15,18 +15,9 @@ def cat(params):
     response = call_api("files", "get", params=filters)
 
     if response:
-        encoded_content = response[0]["contents"]
-        match = re.search(r"b'([^']*)'", encoded_content)
-        if match:
-            encoded_content = match.group(1)
-            byte_content = base64.b64decode(encoded_content)
-            content = byte_content.decode("utf-8")
-            print(f"\n{content}") 
-            return content
-        else:
-            print("Match not found")
-    
-    response = call_api("columnNames", "get", params={"table_name": "files"})
+        content = response[0]["contents"]
+        print(content)
+        return(content)
     
     # for fname in params:
     #     print(params)
