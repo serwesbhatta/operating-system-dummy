@@ -1,8 +1,6 @@
-from database.sqliteCRUD import SqliteCRUD
+import re, base64
 from cmd_pkg.fs_state_manager import Fs_state_manager
 from .call_api import call_api
-
-fsDB = SqliteCRUD("../database/data/filesystem.db")
 
 def cat(params):
     """Display the contents of one or more files."""
@@ -15,15 +13,21 @@ def cat(params):
     filters = {"name": filename, "pid": current_pid}
 
     response = call_api("files", "get", params=filters)
-        # url = f"http://localhost:8080/file?filename={fname}&user_id={1}"
-        # response = requests.get(url)
+
     if response:
-        content = response[0]["contents"]
-        print(f"This is the content : {content}")
+        encoded_content = response[0]["contents"]
+        match = re.search(r"b'([^']*)'", encoded_content)
+        if match:
+            encoded_content = match.group(1)
+            byte_content = base64.b64decode(encoded_content)
+            content = byte_content.decode("utf-8")
+            print(f"\n{content}") 
+            return content
+        else:
+            print("Match not found")
     
     response = call_api("columnNames", "get", params={"table_name": "files"})
     
-    print(f"Column names : {response}")
     # for fname in params:
     #     print(params)
     #     response = call_api("file", params=params)

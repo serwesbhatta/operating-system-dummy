@@ -10,10 +10,6 @@ def call_api(endpoint, method = "get", params=None, data=None, headers=None):
   url = f"{base_url}{endpoint}"
   headers = {"Content-Type": "application/json"}
 
-  print(url)
-  # if headers is None:
-  #   headers = {"Content-Type": "application/json"}
-
   if method.lower() == "get":
     try:
       response = requests.get(url,params=params, headers=headers)
