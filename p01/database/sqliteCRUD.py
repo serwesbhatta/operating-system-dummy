@@ -12,6 +12,8 @@ class SqliteCRUD:
         self.conn = sqlite3.connect(self.db_path, check_same_thread=False)
         self.cursor = self.conn.cursor()
 
+    def get_column_names(self, table_name):
+        return Get_column_names(self.cursor, table_name)
    
     def create_table(self, table_name, columns):
         Create_table(self.cursor, self.conn, table_name, columns)

@@ -1,22 +1,32 @@
-import os
-from database.sqliteCRUD import SqliteCRUD
+# from .encoder_decoder import decode
 from cmd_pkg.fs_state_manager import Fs_state_manager
-import requests
-fsDB = SqliteCRUD("../database/data/filesystem.db")
-import base64
+from .call_api import call_api
+
 def cat(params):
     """Display the contents of one or more files."""
-    from shell import ppointer
-
     if len(params) == 0:
         print("\nError: No file specified.\n")
         return
 
+    filename = params[0]
     current_pid = Fs_state_manager.get_pid()
-    for fname in params:
-        url = f"http://localhost:8080/file?filename={fname}&user_id={1}"
-        response = requests.get(url)
-        print(response.content.decode("utf-8").replace("\\n","\n"))
+    filters = {"name": filename, "pid": current_pid}
+
+    response = call_api("files", "get", params=filters)
+
+    if response:
+        content = response[0]["contents"]
+        print(content)
+        return(content)
+    
+    # for fname in params:
+    #     print(params)
+    #     response = call_api("file", params=params)
+    #     # url = f"http://localhost:8080/file?filename={fname}&user_id={1}"
+    #     # response = requests.get(url)
+    #     if response:
+    #         print(f"This is the content : {response.content}")
+        # print(response.content.decode("utf-8").replace("\\n","\n"))
     # for file_name in params:
     #     # Check if the file exists in the current directory
     #     if fsDB.file_exists(file_name, current_pid):
