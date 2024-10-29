@@ -7,6 +7,7 @@ from .create_directory import Create_directory
 from .delete_directory import Delete_directory
 from .list_directories import List_directories
 from .rename_file import Rename_file
+from .get_column_names import Get_column_names
 
 __all__ = [
     "Get_files",
@@ -17,5 +18,6 @@ __all__ = [
     "Create_directory",
     "Delete_directory",
     "List_directories",
-    "Rename_file"
+    "Rename_file",
+    "Get_column_names"
 ]

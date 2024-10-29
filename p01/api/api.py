@@ -61,9 +61,13 @@ else:
 async def docs_redirect():
     return RedirectResponse(url="/docs")
 
-@app.get("/files/")
-async def get_files_route(name: str = None):
-    return await Get_files(fsDB, name)
+@app.get("/columnNames")
+async def get_column_names(table_name: str):
+    return await Get_column_names(fsDB, table_name)
+
+@app.get("/files")
+async def get_files_route(pid: int, name = None):
+    return await Get_files(fsDB, pid, name)
 
 
 @app.post("/touch")
