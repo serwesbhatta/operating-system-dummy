@@ -1,6 +1,7 @@
 from fastapi import HTTPException
 from database.sqliteCRUD import SqliteCRUD
 from .create_file import Create_file
+from .encoder_decoder import Encode
 
 def Write_file(fsDB: SqliteCRUD, filepath: str, content: str, user_id: int):
     """
@@ -25,7 +26,7 @@ def Write_file(fsDB: SqliteCRUD, filepath: str, content: str, user_id: int):
             if (user_id == owner_id and write_permission == 1) or world_write == 1:
                 # Use the generic update_data function to update the contents
                 # Change content to blob content
-                content = content.encode('utf-8') 
+                content = Encode("content") 
                 update_status = fsDB.update_data("files", "contents", content, "id", file_id)
                 if update_status["success"]:
                     return {"message": f"Content written to file '{filepath}' successfully."}

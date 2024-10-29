@@ -1,6 +1,6 @@
 import base64, re
 
-def decode(encoded_content):
+def Decode(encoded_content):
   match = re.search(r"b'([^']*)'", encoded_content)
   if match:
       encoded_content = match.group(1)
@@ -12,6 +12,6 @@ def decode(encoded_content):
      print("Error matching the pattern")
      return ""
   
-def encode(content):
+def Encode(content):
     encoded_content = base64.b64encode(content.encode("utf-8"))
     return encoded_content
