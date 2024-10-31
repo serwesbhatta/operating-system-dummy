@@ -25,7 +25,7 @@ def Read_data(cursor, table_name, filters=None):
             results = cursor.fetchall()
 
             if results:
-                # print(results)
+                print(results)
                 return results
             else:
                 return []

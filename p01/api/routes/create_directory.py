@@ -11,7 +11,7 @@ def Create_directory(fsDB: SqliteCRUD, directory_name: str, parent_id: int, owne
     """
     if fsDB:
         # Check if the directory already exists
-        filters = {"name": directory_name, "pid": parent_id}  # Assuming the parent_id
+        filters = {"name": directory_name, "pid": parent_id} 
         existing_dir = fsDB.read_data("directories", filters)
          
         if existing_dir:

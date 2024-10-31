@@ -23,8 +23,7 @@ async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
             column_names = await Get_column_names(fsDB, "files")
             rows = [dict(zip(column_names, row)) for row in files]
             for row in rows:
-                print(row)
-                if row["contents"] is not "NULL":
+                if row["contents"] != "NULL":
                     try:
                         row["contents"] = Decode(row["contents"])
                     except:

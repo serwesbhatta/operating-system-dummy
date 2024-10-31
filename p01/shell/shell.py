@@ -88,7 +88,7 @@ if __name__ == "__main__":
     cursor_position = len(cmd) 
 
     print_cmd(cmd)  # print to terminal
-    cmd_pkg.history(None)
+    # cmd_pkg.history(None)
     while True:  # loop forever
 
         char = getch()  # read a character (but don't print)

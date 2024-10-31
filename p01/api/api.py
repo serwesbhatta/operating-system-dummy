@@ -71,42 +71,42 @@ async def get_files_route(pid: int, name = None):
 
 
 @app.post("/touch")
-def create_file_route(name: str):
-    return Create_file(fsDB, name)
+def create_file_route(pid: int, name: str):
+    return Create_file(fsDB, name, pid)
 
 
 @app.delete("/rm")
-def delete_file_route(filename: str):
-    return Delete_file(fsDB, filename)
+def delete_file_route(pid: int, filename: str):
+    return Delete_file(fsDB, pid, filename)
 
 
 @app.get("/file")
-def read_file_content(filename: str, user_id: int):
-    return Read_file(fsDB, filename, user_id)
+def read_file_content(pid: int, filename: str, user_id: int):
+    return Read_file(fsDB, pid, filename, user_id)
 
 
 @app.post("/filePath")
-def write_file_route(filepath: str, content: str, user_id: int):
-    return Write_file(fsDB, filepath, content, user_id)
+def write_file_route(pid: int, filepath: str, content: str, user_id: int):
+    return Write_file(fsDB, pid, filepath, content, user_id)
 
 
 @app.put("/mv")
-def rename_file_route(old_filename: str, new_filename: str):
-    return Rename_file(fsDB, old_filename, new_filename)
+def rename_file_route(old_pid: int, old_filename: str, new_pid: int, new_filename: str):
+    return Rename_file(fsDB, old_pid, old_filename, new_pid, new_filename)
 
 
 @app.post("/dir")
-def create_directory(directory_name: str):
-    return Create_directory(fsDB, directory_name)
+def create_directory(pid: int, directory_name: str):
+    return Create_directory(fsDB, pid, directory_name)
 
 @app.delete("/dir")
-def delete_directory(directory_name: str):
-    return Delete_directory(fsDB, directory_name)
+def delete_directory(pid: int, directory_name: str):
+    return Delete_directory(fsDB, pid, directory_name)
 
 
 @app.get("/dirs")
-def list_directories(parent: int = 1):
-    return List_directories(fsDB, parent)
+def list_directories(pid: int):
+    return List_directories(fsDB, pid)
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)
