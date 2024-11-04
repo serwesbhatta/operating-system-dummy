@@ -94,7 +94,7 @@ if __name__ == "__main__":
         char = getch()  # read a character (but don't print)
 
         if char == "\x03" or cmd == "exit":  # ctrl-c
-            raise SystemExit("Bye.")
+            raise SystemExit("\nBye.")
 
         elif char == "\x7f":  # back space pressed
             cmd = cmd[:-1]
