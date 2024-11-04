@@ -6,7 +6,6 @@ def Decode(encoded_content):
       encoded_content = match.group(1)
       byte_content = base64.b64decode(encoded_content)
       content = byte_content.decode("utf-8")
-      print(f"\n{content}") 
       return content
   else:
      print("Error matching the pattern")
