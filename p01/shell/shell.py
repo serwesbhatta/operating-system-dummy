@@ -33,12 +33,12 @@ getch = Getch()  # create instance of our getch class
 # prompt = prompt()
 
 # Used as a pointer in the terminal
-ppointer = {
-    "current_path" : "/",
-    "current_dir" : "/",
-    "pid" : "1",
-    "old" : "1"
-}
+# ppointer = {
+#     "current_path" : "/",
+#     "current_dir" : "/",
+#     "pid" : "1",
+#     "old" : "1"
+# }
 
 def print_cmd(cmd):
     """This function "cleans" off the command line, then prints
