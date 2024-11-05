@@ -24,7 +24,7 @@ class FileSystemStateManager:
         """Return the full current path as a string."""
         if self.current_path == ["~"]:
             return "~"
-        return "/" + "/".join(self.current_path)  # Join the path components with /
+        return "/".join(self.current_path)  # Join the path components with /
 
     def set_pid(self, pid):
         """Set the parent ID."""

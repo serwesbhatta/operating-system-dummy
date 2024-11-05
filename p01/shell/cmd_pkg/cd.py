@@ -1,8 +1,11 @@
-import os
 from database.sqliteCRUD import SqliteCRUD
 from cmd_pkg.fs_state_manager import Fs_state_manager
+from .getch import Getch
+from .cat import cat
 
 fsDB = SqliteCRUD("../database/data/filesystem.db")
+
+getch = Getch() 
 
 def cd(params=None):
     from shell import ppointer
@@ -69,6 +72,9 @@ def cd(params=None):
         elif fsDB.file_belongs_to_directory(new_dir, current_pid):
             # If the specified path is a file in the current directory
             print(f"\n'{new_dir}' is a file. Would you like to open it? (Yes/No)\n")
+            response = getch().lower()
+            if response == 'y':
+                cat([new_dir])
             return ""
         else:
             print(f"\nError: '{new_dir}' does not exist or is not accessible from the current directory '{Fs_state_manager.get_path()}'.\n")
