@@ -72,7 +72,7 @@ async def get_files_route(pid: int, name = None):
 
 @app.post("/touch")
 def create_file_route(pid: int, name: str):
-    return Create_file(fsDB, name, pid)
+    return Create_file(fsDB, pid, name)
 
 
 @app.delete("/rm")
@@ -81,8 +81,8 @@ def delete_file_route(pid: int, filename: str):
 
 
 @app.get("/file")
-def read_file_content(pid: int, filename: str, user_id: int):
-    return Read_file(fsDB, pid, filename, user_id)
+def read_file_content(pid: int, filename: str, oid: int):
+    return Read_file(fsDB, pid, filename, oid)
 
 
 @app.post("/filePath")

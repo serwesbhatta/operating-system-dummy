@@ -17,11 +17,14 @@ async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
     if fsDB:
         try:
             files = fsDB.read_data("files", filters)
+            print(f"Files: {files}")
         except:
             raise HTTPException(status_code=404, detail="Could not read data")
         if files:
             column_names = await Get_column_names(fsDB, "files")
+            print(f"Column Names: {column_names}")
             rows = [dict(zip(column_names, row)) for row in files]
+            print(f"Rows: {rows}")
             for row in rows:
                 if row["contents"] != "NULL":
                     try:

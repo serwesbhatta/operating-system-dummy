@@ -10,7 +10,7 @@ def Create_file(fsDB: SqliteCRUD, pid: int, name: str):
     Create a new file in the simulated filesystem and record the action in the database.
     """
     if fsDB:
-        filters = {'name': name, 'pid': pid}
+        filters = {'pid': pid, 'name': name}
 
         existing_file = fsDB.read_data("files", filters)
 

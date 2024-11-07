@@ -1,42 +1,38 @@
-# cmd_pkg/pwd.py
-
-import os
-from database.sqliteCRUD import SqliteCRUD
-from cmd_pkg.fs_state_manager import Fs_state_manager
 from datetime import datetime
+from cmd_pkg.fs_state_manager import Fs_state_manager
+from .call_api import call_api
 
+# Get current timestamp for logging or history entries
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-fsDB = SqliteCRUD("../database/data/filesystem.db")
 
-
-def history(cmd = None):
-    file_name = "history.txt"
-    result = []
-    result_string = ""
-    values = (
-            None, 1, 1, file_name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
-            1, 1, 1, 1, 0, 1  # Permissions and default values
-        )
-    if not fsDB.file_belongs_to_directory(file_name, 1):
-        fsDB.insert_data("files",values)
-    if cmd!= None:
-        filters = {"name": "history.txt", "pid": 1}
-        file_record = fsDB.read_data("files", filters)
-        file_id = file_record[0][0]
-        # print(file_record)
-        if file_record[0][7]!= None:
-            count = len(file_record[0][7].split("\n"))
-            new_contents = file_record[0][7] + "\n" + str(count) + " " + cmd
+def history(cmd=None):
+    """
+    Retrieve or create a history file for each user based on their OID (owner ID).
+    """
+    try:
+        # Retrieve owner ID for the current user and create a unique filename
+        oid = Fs_state_manager.get_oid()
+        filename = f"history_{oid}.txt"
+        
+        # Define the parameters to check if the file exists
+        file_check_params = {"pid": 1, "filename": filename}
+        
+        # Attempt to fetch history file content via API
+        existing_history = call_api("/file", "get", params=file_check_params)
+        
+        if existing_history == 404:  # File doesn't exist; create it
+            create_file_params = {"pid": 1, "name": filename}
+            create_response = call_api("/touch", "post", data=create_file_params)
+            if create_response != 201:  # Assuming 201 is the success code for creation
+                print(f"Failed to create history file for OID {oid}")
+            else:
+                print(f"New history file created for OID {oid}: {filename}")
         else:
-            new_contents = "0 " + cmd
-        # new_contents = None
-        fsDB.update_data("files", "contents", new_contents, "id", file_id)  
-        return ""
-    else:
-        filters = {"name": "history.txt", "pid": 1}
-        file_record = fsDB.read_data("files", filters)
-        result = file_record[0][7].split("\n")
-        for i in result:
-            result_string += i+"\n"
+            # Process existing history commands if file was found
+            print(f"Existing history retrieved for OID {oid}: {existing_history}")
+        
+    except Exception as e:
+        print(f"Error accessing history file: {e}")
     
-    return result_string
+    return ""  # Optional: return a status message or content
+

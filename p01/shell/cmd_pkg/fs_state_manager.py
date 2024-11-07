@@ -3,7 +3,7 @@ class FileSystemStateManager:
         self.current_directory = "~"  # Start at home directory by default
         self.current_path = ["~"]     # Represent the path as a list
         self.pid = 1  # Default parent ID (can be adjusted based on the root directory)
-        self.oid = None  # Owner ID, can be set later based on the user
+        self.oid = 1  # Owner ID, can be set later based on the user
 
     def set_directory(self, new_dir):
         """Update the current directory name."""
