@@ -27,8 +27,4 @@ def prompt():
   # Construct the prompt with colors
   prompt = f"{GREEN}({user}){RESET} {BLUE}{current_directory}{RESET} {YELLOW}$ {RESET}"
 
-  # print("Called prompt")
-  # Set the prompt string
-  # prompt = f"({user}) {current_directory} $"  # set default prompt
-
   return prompt
