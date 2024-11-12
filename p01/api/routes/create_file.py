@@ -5,12 +5,12 @@ from database.sqliteCRUD import SqliteCRUD
 
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
-def Create_file(fsDB: SqliteCRUD, pid: int, name: str):
+def Create_file(fsDB: SqliteCRUD, oid: int, pid: int, name: str):
     """
     Create a new file in the simulated filesystem and record the action in the database.
     """
     if fsDB:
-        filters = {'pid': pid, 'name': name}
+        filters = {"oid" : oid, 'pid': pid, 'name': name}
 
         existing_file = fsDB.read_data("files", filters)
 
@@ -24,7 +24,7 @@ def Create_file(fsDB: SqliteCRUD, pid: int, name: str):
 
         # Insert values corresponding to the specified columns
         values = (
-            None, pid, 1, name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
+            None, pid, oid, name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, "",
             1, 1, 1, 1, 0, 1  # Permissions and default values
         )
 

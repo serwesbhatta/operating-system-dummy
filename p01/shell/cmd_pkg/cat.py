@@ -2,15 +2,16 @@
 from cmd_pkg.fs_state_manager import Fs_state_manager
 from .call_api import call_api
 
-def cat(params):
+def cat(params = None):
     """Display the contents of one or more files."""
-    if len(params) == 0:
+    if not params:
         print("\nError: No file specified.\n")
         return
 
     filename = params[0]
     current_pid = Fs_state_manager.get_pid()
-    filters = {"name": filename, "pid": current_pid}
+    oid = Fs_state_manager.get_oid()
+    filters = {"name": filename, "pid": current_pid, "oid": oid}
 
     response = call_api("files", "get", params=filters)
 

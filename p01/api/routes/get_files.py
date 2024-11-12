@@ -3,14 +3,14 @@ from database.sqliteCRUD import SqliteCRUD
 from .get_column_names import Get_column_names
 from .encoder_decoder import Decode
 
-async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
+async def Get_files(fsDB: SqliteCRUD, oid: int, pid: int, name : str =None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """
     if name is not None:
-        filters = {"name": name, "pid": pid}
+        filters = {"oid": oid, "name": name, "pid": pid}
     elif pid:
-        filters = {"pid": pid}
+        filters = {"oid": oid, "pid": pid}
     else:
         print("Please use the pid")
     
