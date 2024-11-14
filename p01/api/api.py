@@ -63,11 +63,11 @@ async def docs_redirect():
 
 @app.get("/columnNames")
 async def get_column_names(table_name: str):
-    return await Get_column_names(fsDB, table_name)
+    return Get_column_names(fsDB, table_name)
 
 @app.get("/files")
 async def get_files_route(oid: int, pid: int, name = None):
-    return await Get_files(fsDB, oid, pid, name)
+    return Get_files(fsDB, oid, pid, name)
 
 
 @app.post("/touch")
@@ -85,8 +85,8 @@ def read_file_content(oid: int, pid: int, filename: str):
     return Read_file(fsDB, oid, pid, filename)
 
 
-@app.post("/filePath")
-def write_file_route(oid: int, pid: int, filepath: str, content: str, ):
+@app.put("/write")
+def write_file_route(oid: int, pid: int, filepath: str, content: str):
     return Write_file(fsDB, oid, pid, filepath, content)
 
 

@@ -3,7 +3,7 @@ from database.sqliteCRUD import SqliteCRUD
 from .get_column_names import Get_column_names
 from .encoder_decoder import Decode
 
-async def Get_files(fsDB: SqliteCRUD, oid: int, pid: int, name : str =None):
+def Get_files(fsDB: SqliteCRUD, oid: int, pid: int, name : str = None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """
@@ -17,14 +17,11 @@ async def Get_files(fsDB: SqliteCRUD, oid: int, pid: int, name : str =None):
     if fsDB:
         try:
             files = fsDB.read_data("files", filters)
-            print(f"Files: {files}")
         except:
             raise HTTPException(status_code=404, detail="Could not read data")
         if files:
-            column_names = await Get_column_names(fsDB, "files")
-            print(f"Column Names: {column_names}")
+            column_names = Get_column_names(fsDB, "files")
             rows = [dict(zip(column_names, row)) for row in files]
-            print(f"Rows: {rows}")
             for row in rows:
                 if row["contents"] != "NULL":
                     try:

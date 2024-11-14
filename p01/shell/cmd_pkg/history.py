@@ -12,24 +12,36 @@ def history(cmd=None):
     try:
         # Retrieve owner ID for the current user and create a unique filename
         oid = Fs_state_manager.get_oid()
-        filename = f"history_{oid}.txt"
+        filename = "history.txt"
         
         # Define the parameters to check if the file exists
-        file_check_params = {"pid": 1, "filename": filename}
+        history_params = {"pid": 1, "name": filename, "oid": oid}
         
         # Attempt to fetch history file content via API
-        existing_history = call_api("/file", "get", params=file_check_params)
-        
-        if existing_history == 404:  # File doesn't exist; create it
-            create_file_params = {"pid": 1, "name": filename}
-            create_response = call_api("/touch", "post", data=create_file_params)
-            if create_response != 201:  # Assuming 201 is the success code for creation
-                print(f"Failed to create history file for OID {oid}")
+        existing_history = call_api("files", "get", params=history_params)
+
+        if cmd:
+            if existing_history:
+                previous_contents = existing_history[0]["contents"]
+                count = len(previous_contents)
+                new_contents = previous_contents + "\n" + str(count) + " " + cmd
+
+                update_history_data = {"oid": oid, "pid": 1, "filepath": filename, "content": new_contents}
+
+                response = call_api("write", "put", data=update_history_data)
+
+                if response is None:
+                    print("Failed to update history.")
             else:
-                print(f"New history file created for OID {oid}: {filename}")
-        else:
-            # Process existing history commands if file was found
-            print(f"Existing history retrieved for OID {oid}: {existing_history}")
+                contents = ""
+                contents += "\n" + "0" + cmd
+                new_history_data = {"oid": oid, "pid": 1, "name": "history.txt", "content": contents}
+                create_response = call_api("touch", "post", data=new_history_data)
+
+                if create_response != 201:
+                    print(f"Failed to create history file")
+                else:
+                    print(f"New history file created")
         
     except Exception as e:
         print(f"Error accessing history file: {e}")
