@@ -62,11 +62,11 @@ async def docs_redirect():
     return RedirectResponse(url="/docs")
 
 @app.get("/columnNames")
-async def get_column_names(table_name: str):
+def get_column_names(table_name: str):
     return Get_column_names(fsDB, table_name)
 
 @app.get("/files")
-async def get_files_route(oid: int, pid: int, name = None):
+def get_files_route(oid: int, pid: int, name:str = None):
     return Get_files(fsDB, oid, pid, name)
 
 
@@ -105,8 +105,8 @@ def delete_directory(oid: int, pid: int, directory_name: str):
 
 
 @app.get("/dirs")
-def list_directories(oid: int, pid: int):
-    return List_directories(fsDB, oid, pid)
+def list_directories(oid: int, pid: int, name: str = None):
+    return List_directories(fsDB, oid, pid, name)
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)
