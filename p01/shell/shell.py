@@ -154,7 +154,7 @@ if __name__ == "__main__":
             # # This 'elif' simulates something "happening" after pressing return
             # print_cmd("Executing command....")
             # sleep(1)
-            cmd_pkg.history(cmd)
+            # cmd_pkg.history(cmd)
             # Check for pipes
             if "|" in cmd:
                 # Split by pipes
