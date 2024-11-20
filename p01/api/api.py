@@ -3,6 +3,7 @@ from fastapi.responses import RedirectResponse
 from dotenv import load_dotenv
 import uvicorn
 from datetime import datetime
+from pydantic import BaseModel
 
 # Builtin libraries
 import os, sys
@@ -43,8 +44,11 @@ app = FastAPI(
 )
 
 # Database setup
-dataPath = os.getenv("DB_PATH")
-dbName = os.getenv("DB_NAME")
+# dataPath = os.getenv("DB_PATH")
+# dbName = os.getenv("DB_NAME")
+
+dataPath = "../database/data/"
+dbName = "filesystem.db"
 
 dbFilePath = os.path.join(dataPath, dbName)
 print("Checking for database at:", dbFilePath)
@@ -55,6 +59,12 @@ if os.path.exists(dbFilePath):
 else:
     fsDB = None
     print("Database file not found.")
+
+class WriteData(BaseModel):
+    oid: int
+    pid: int
+    filepath: str
+    content: str 
 
 # API Routes
 @app.get("/")
@@ -86,9 +96,8 @@ def read_file_content(oid: int, pid: int, filename: str):
 
 
 @app.put("/write")
-def write_file_route(oid: int, pid: int, filepath: str, content: str):
-    return Write_file(fsDB, oid, pid, filepath, content)
-
+def write_file_route(data: WriteData):
+    return Write_file(fsDB, data.oid, data.pid, data.filepath, data.content)
 
 @app.put("/mv")
 def rename_file_route(oid: int, old_pid: int, old_filename: str, new_pid: int, new_filename: str):

@@ -3,6 +3,7 @@ from database.sqliteCRUD import SqliteCRUD
 from .create_file import Create_file
 from .encoder_decoder import Encode
 from .get_column_names import Get_column_names
+from pydantic import BaseModel
 
 def Write_file(fsDB: SqliteCRUD, oid:int, pid: int, filepath: str, content: str):
     """

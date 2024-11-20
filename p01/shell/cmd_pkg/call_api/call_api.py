@@ -4,21 +4,22 @@ import os
 
 load_dotenv()
 
-base_url = os.getenv("API_URL")
+# base_url = os.getenv("API_URL")
+base_url ="http://localhost:8080/"
 
-def call_api(endpoint, method="get", params=None, data=None, headers=None):
+def call_api(endpoint, method="get", params=None, data=None):
     url = f"{base_url}{endpoint}"
-    headers = {"Content-Type": "application/json"}
+    # headers = {"Content-Type": "application/json"}
 
     try:
         if method.lower() == "get":
-            response = requests.get(url, params=params, headers=headers)
+            response = requests.get(url, params=params)
         elif method.lower() == "post":
-            response = requests.post(url, json=data, headers=headers)
+            response = requests.post(url, json=data)
         elif method.lower() == "put":
-            response = requests.put(url, json=data, headers=headers)
+            response = requests.put(url, json=data)
         elif method.lower() == "delete":
-            response = requests.delete(url, json=data, headers=headers)
+            response = requests.delete(url, json=data)
         else:
             raise ValueError("Unsupported HTTP method")
 

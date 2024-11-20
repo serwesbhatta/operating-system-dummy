@@ -7,8 +7,8 @@ from dotenv import load_dotenv
 # Load environment variables from .env file
 load_dotenv()
 
-dataPath = os.getenv("DB_PATH")
-dbName = os.getenv("DB_NAME")
+dataPath = "../database/data/"
+dbName = "filesystem.db"
 
 dbFilePath = os.path.join(dataPath, dbName)
 print("Checking for database at:", dbFilePath)
