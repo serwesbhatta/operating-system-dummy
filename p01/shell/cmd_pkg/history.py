@@ -20,10 +20,12 @@ def history(cmd=None):
         # Attempt to fetch history file content via API
         existing_history = call_api("files", "get", params=history_params)
 
-        if cmd:
-            if existing_history:
+        if existing_history:
+            if cmd:
                 previous_contents = existing_history[0]["contents"]
-                count = len(previous_contents)
+                lines = previous_contents.strip().split("\n")
+                count = len(lines)
+
                 new_contents = previous_contents + "\n" + str(count) + " " + cmd
 
                 update_history_data = {"oid": oid, "pid": 1, "filepath": filename, "content": new_contents}
@@ -33,15 +35,24 @@ def history(cmd=None):
                 if response is None:
                     print("Failed to update history.")
             else:
-                contents = ""
-                contents += "\n" + "0" + cmd
-                new_history_data = {"oid": oid, "pid": 1, "name": "history.txt", "content": contents}
-                create_response = call_api("touch", "post", data=new_history_data)
-
-                if create_response != 201:
-                    print(f"Failed to create history file")
+                response = call_api("files", params=history_params)
+                if response:
+                    print(response[0]["contents"])
                 else:
-                    print(f"New history file created")
+                    print("Cannot print history content")
+        else:
+            contents = ""
+            if cmd:
+                contents += "\n" + "0" + cmd
+
+            new_history_data = {"oid": oid, "pid": 1, "name": "history.txt", "content": contents}
+            create_response = call_api("touch", "post", data=new_history_data)
+
+            if create_response != 201:
+                print(f"Failed to create history file")
+            else:
+                print(f"New history file created")
+        
         
     except Exception as e:
         print(f"Error accessing history file: {e}")
