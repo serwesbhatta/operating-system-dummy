@@ -37,7 +37,8 @@ def history(cmd=None):
             else:
                 response = call_api("files", params=history_params)
                 if response:
-                    print(response[0]["contents"])
+                    # print(response[0]["contents"])
+                    return response[0]["contents"]
                 else:
                     print("Cannot print history content")
         else:

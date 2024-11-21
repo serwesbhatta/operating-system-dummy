@@ -136,7 +136,9 @@ if __name__ == "__main__":
                         cmd = ""
                         print_cmd(cmd)  # Clear the command display
                 else:
-                    print("\nNo more history.\n")
+                    cmd = ""
+                    print("\n")
+                    print_cmd("")
 
 
             if direction in "C":  # right arrow pressed
@@ -150,7 +152,7 @@ if __name__ == "__main__":
                     print("\x1b[D", end="", flush=True)  # Move the cursor left
 
         elif char in "\r":  # return pressed
-
+            arrow_count = -1
             # # This 'elif' simulates something "happening" after pressing return
             # print_cmd("Executing command....")
             # sleep(1)
