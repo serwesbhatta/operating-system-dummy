@@ -17,7 +17,7 @@ def history(cmd=None):
         # Define the parameters to check if the file exists
         history_params = {"pid": 1, "name": filename, "oid": oid}
         
-        # Attempt to fetch history file content via API
+        # Attempt to fetch history file content via API'
         existing_history = call_api("files", "get", params=history_params)
 
         if existing_history:
@@ -43,16 +43,20 @@ def history(cmd=None):
         else:
             contents = ""
             if cmd:
-                contents += "\n" + "0" + cmd
+                contents += "\n" + "0 " + cmd
 
-            new_history_data = {"oid": oid, "pid": 1, "name": "history.txt", "content": contents}
+            new_history_data = {"oid": oid, "pid": 1, "name": "history.txt"}
             create_response = call_api("touch", "post", data=new_history_data)
 
-            if create_response != 201:
+            if create_response == 200:
                 print(f"Failed to create history file")
             else:
-                print(f"New history file created")
-        
+                update_history_data = {"oid": oid, "pid": 1, "filepath": filename, "content": contents}
+
+                response = call_api("write", "put", data=update_history_data)
+
+                if response is None:
+                    print("Failed to update history.")
         
     except Exception as e:
         print(f"Error accessing history file: {e}")

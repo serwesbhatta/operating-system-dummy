@@ -64,7 +64,12 @@ class WriteData(BaseModel):
     oid: int
     pid: int
     filepath: str
-    content: str 
+    content: str
+
+class CreateFile(BaseModel):
+    oid: int
+    pid: int
+    name: str
 
 # API Routes
 @app.get("/")
@@ -81,8 +86,8 @@ def get_files_route(oid: int, pid: int, name:str = None):
 
 
 @app.post("/touch")
-def create_file_route(oid: int, pid: int, name: str):
-    return Create_file(fsDB, oid, pid, name)
+def create_file_route(data: CreateFile):
+    return Create_file(fsDB, data.oid, data.pid, data.name)
 
 
 @app.delete("/rm")

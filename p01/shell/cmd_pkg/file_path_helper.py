@@ -10,12 +10,10 @@ def file_path_helper(path: str):
   """
   try:
     path_arr = path.split("/")
-    file_name = path_arr[-1]
-    path_arr.pop()
+    file_name = path_arr.pop()
 
     oid = Fs_state_manager.get_oid()
     pid = Fs_state_manager.get_pid()
-    did = None
     directories_exist = False
     file_exist = False
 
@@ -24,12 +22,17 @@ def file_path_helper(path: str):
       
       try:
         response = call_api("dirs", params=filters)
-        pid = response[0]["pid"]
-        oid = response[0]['oid']
-        id = response[0]["id"]
-        print(response)
+        if response:
+          pid = response[0]["id"]
+
       except:
-        return {"message": "Directory doesn't exist"}
+        return {
+        "directories_exist" : directories_exist,
+        "file_exist": file_exist,
+        "pid": pid,
+        "oid": oid,
+        "id": id
+      }
     
     directories_exist = True
 
@@ -39,22 +42,19 @@ def file_path_helper(path: str):
       response = call_api("files", filters)
 
       if response:
-        pid = response[0]["pid"]
-        oid = response[0]["oid"]
-        id = response[0]["id"]
         file_exist = True
 
-      return {
+    except:
+      pass
+    
+    return {
         "directories_exist" : directories_exist,
         "file_exist": file_exist,
         "pid": pid,
         "oid": oid,
         "id": id
       }
-
-    except:
-      return {"message":"File doesn't exist"}
   
   except Exception as e:
     print(f"Error in file_path_helper: {e}")
-    return None
+    return ""

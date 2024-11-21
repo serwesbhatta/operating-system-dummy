@@ -17,7 +17,6 @@ def Create_file(fsDB: SqliteCRUD, oid: int, pid: int, name: str):
         print("Database is initialized")
 
         if existing_file:
-            print("File already exists")
             return {"message": "File already exists"}
             # raise HTTPException(status_code=400, detail="File already exists.")
 

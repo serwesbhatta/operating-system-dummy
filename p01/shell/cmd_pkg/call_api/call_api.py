@@ -27,9 +27,8 @@ def call_api(endpoint, method="get", params=None, data=None):
         if response.status_code == 200 or response.status_code == 201:
             return response.json()
         else:
-            print(f"API call failed with status code {response.status_code}: {response.text}")
-            return None
+            return
 
     except requests.RequestException as e:
         print(f"API request failed: {e}")
-        return None
+        return

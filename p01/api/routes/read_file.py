@@ -12,9 +12,12 @@ def Read_file(fsDB: SqliteCRUD, oid:int, pid: int, filename: str):
     if fsDB:
         response = fsDB.get_file_content(filters)
         if response["success"]:
-            content = Decode(response["content"])  # No need to decode, assuming it's already a string
+            content = Decode(response["content"])
             return content
         else:
-            raise HTTPException(status_code=response["status"], detail=response["message"])
+            return {
+                "status_code" : response["status"],
+                "message": response["message"]
+            }
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
