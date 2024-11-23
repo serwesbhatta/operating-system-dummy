@@ -17,6 +17,10 @@ from api.routes.write_file import Write_file
 #  Import commands
 from cmd_pkg import *
 
+from cmd_pkg.call_api.call_api import call_api
+from cmd_pkg.fs_state_manager import Fs_state_manager
+from cmd_pkg.file_path_helper import file_path_helper
+
 # Initialize your database connection (you may need to update this path)
 fsDB = SqliteCRUD("../database/data/filesystem.db")
 
@@ -78,7 +82,9 @@ def execute_command(main_cmd, args, input_data=None):
             result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
         return result
     else:
-        return f"Error: Command '{main_cmd}' not found."
+        return {
+            "message": f"Error: Command '{main_cmd}' not found."
+        }
 
 if __name__ == "__main__":
     # Load the commands dynamically from cmd_pkg
@@ -103,7 +109,8 @@ if __name__ == "__main__":
         elif char in "\x1b":  # arrow key pressed
             null = getch()  # waste a character
             direction = getch()  # grab the direction
-            history_contents = cmd_pkg.history(None).split('\n')  # split history into lines
+            history_response = cmd_pkg.history(None)
+            history_contents = history_response["message"].split('\n')  # split history into lines
             if direction in "A":  # up arrow pressed
         # check if arrow_count is within the valid range of history
                 if arrow_count < len(history_contents) - 1:
@@ -115,8 +122,6 @@ if __name__ == "__main__":
                     print_cmd(cmd)
                 else:
                     print("\nNo more history.\n")
-
-           
 
             if direction in "B":  # down arrow pressed
                 # get the NEXT command from history (if there is one)
@@ -137,7 +142,6 @@ if __name__ == "__main__":
                         print_cmd(cmd)  # Clear the command display
                 else:
                     cmd = ""
-                    print("\n")
                     print_cmd("")
 
 
@@ -158,82 +162,151 @@ if __name__ == "__main__":
             # sleep(1)
             if cmd:
                 cmd_pkg.history(cmd)
-            else:
-                print("\n")
-                print_cmd(cmd)
-            # Check for pipes
-            if "|" in cmd:
-                # Split by pipes
-                pipe_cmds = cmd.split("|")
-                
-                input_data = None  # This will store the output from the previous command
 
-                for pipe_cmd in pipe_cmds:
-                    # Split the subcommand and its arguments
-                    cmd_parts = pipe_cmd.strip().split()
-                    
-                    if len(cmd_parts) > 0:
-                        main_cmd = cmd_parts[0]
-                        args = cmd_parts[1:]
+                commands = cmd
+                redirection = False
+                redirection_file_path = ""
 
-                        # Execute the command
-                        result = execute_command(main_cmd, args, input_data)
+                if ">" in cmd:
+                    tokens = cmd.split(">")
+                    commands = tokens[0].strip()
+                    redirection_file_path = tokens[1].strip()
+                    redirection = True
+
+                if "|" in cmd:
+                    input_data = None
+                    each_commands = commands.split("|")
+
+                    for index, each_command in enumerate(each_commands):
+                        each_command = each_command.strip().split()
+                        each_command_main = each_command[0]
+                        each_command_args = each_command[1:]
                         
-                        # If result is an error, stop processing further
-                        if "Error" in result:
-                            print(result)
+                        result = execute_command(each_command_main, each_command_args, input_data)
+
+                        if "Error" in result["message"]:
+                            print(result["message"])
                             break
-                        
-                        # Pass the result as input for the next command
+
                         input_data = result
 
-                # Handle output redirection if applicable
-                if ">" in cmd:
-                    output_file = cmd.split(">")[-1].strip()
-
-                    user_id = 1 #TODO: use dynamic value
-                    api_response = Write_file(fsDB, output_file, input_data, user_id)
-
-                     # Check if the API succeeded in writing to the database
-                    if api_response.get("message"):
-                        print(f"\n{api_response['message']}")
-                    else:
-                        print(f"\nError: Could not write to the file '{output_file}'.")
-
+                        if index == len(each_commands) - 1:
+                            print(result["message"])
                 else:
-                    # No redirection, just print the output of the command
-                    print(f"\n{input_data}")
+                    command = commands.strip().split()
+                    main_cmd = command[0]
+                    cmd_args = command[1:]
 
-            else:
-                # No pipe, execute normally
-                cmd_parts = cmd.split()
+                    result = execute_command(main_cmd, cmd_args) 
+                    
+                    print(result["message"])
 
-                if len(cmd_parts) > 0:
-                    main_cmd = cmd_parts[0]
-                    args = cmd_parts[1:]
+                    if redirection:
+                        content = result["message"]
 
-                    if main_cmd in cmds:
-                        # Call the function
-                        result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
-                        
-                        # Handle output redirection if applicable
-                        if ">" in cmd:
-                            output_file = cmd.split(">")[-1].strip()
-                            
-                            # Use the Write_file API to write the result to the database file system
-                            user_id = 1  # Assuming static user ID
-                            api_response = Write_file(fsDB, output_file, result, user_id)
+                        try:
+                            path_response = file_path_helper(redirection_file_path)
 
-                            if api_response.get("message"):
-                                print(f"\n{api_response['message']}")
+                            if path_response["directories_exist"]:
+                                oid = path_response["oid"]
+                                pid = path_response["pid"]
+                                redirection_file = path_response["file_name"]
+                                redirection_filters = {
+                                    "oid": oid,
+                                    "pid": pid,
+                                    "filepath": redirection_file,
+                                    "content": content
+                                }
+
+                        except:
+                            print("Cannot resolve path successfully.")
+
+                        try:
+                            response = call_api("write", "put", data=redirection_filters)
+
+                            if response["status"] == "success":
+                                print(response["message"])
                             else:
-                                print(f"\nError: Could not write to the file '{output_file}'.")
+                                print(f"Failed to write to file {redirection_file_path}")
+                        except:
+                            print("Can't process the redirection request.")
+            else:
+                # If there is no cmd then print the prompt in a new line
+                print("\n")
+
+            # Check for pipes
+            # if "|" in cmd:
+            #     # Split by pipes
+            #     pipe_cmds = cmd.split("|")
+                
+            #     input_data = None  # This will store the output from the previous command
+
+            #     for pipe_cmd in pipe_cmds:
+            #         # Split the subcommand and its arguments
+            #         cmd_parts = pipe_cmd.strip().split()
+                    
+            #         if len(cmd_parts) > 0:
+            #             main_cmd = cmd_parts[0]
+            #             args = cmd_parts[1:]
+
+            #             # Execute the command
+            #             result = execute_command(main_cmd, args, input_data)
                         
-                        else:
-                            # No redirection, just print the result
-                            print(f"\n{result}")
-                    else:
-                        print(f"\nError: Command '{main_cmd}' not found.")
+            #             # If result is an error, stop processing further
+            #             if "Error" in result:
+            #                 print(result)
+            #                 break
+                        
+            #             # Pass the result as input for the next command
+            #             input_data = result
+
+            #     # Handle output redirection if applicable
+            #     if ">" in cmd:
+            #         output_file = cmd.split(">")[-1].strip()
+
+            #         user_id = 1 #TODO: use dynamic value
+            #         api_response = Write_file(fsDB, output_file, input_data, user_id)
+
+            #          # Check if the API succeeded in writing to the database
+            #         if api_response.get("message"):
+            #             print(f"\n{api_response['message']}")
+            #         else:
+            #             print(f"\nError: Could not write to the file '{output_file}'.")
+
+            #     else:
+            #         # No redirection, just print the output of the command
+            #         print(f"\n{input_data}")
+
+            # else:
+            #     # No pipe, execute normally
+            #     cmd_parts = cmd.split()
+
+            #     if len(cmd_parts) > 0:
+            #         main_cmd = cmd_parts[0]
+            #         args = cmd_parts[1:]
+
+            #         if main_cmd in cmds:
+            #             # Call the function
+            #             result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
+                        
+            #             # Handle output redirection if applicable
+            #             if ">" in cmd:
+            #                 output_file = cmd.split(">")[-1].strip()
+                            
+            #                 # Use the Write_file API to write the result to the database file system
+            #                 user_id = 1  # Assuming static user ID
+            #                 api_response = Write_file(fsDB, output_file, result, user_id)
+
+            #                 if api_response.get("message"):
+            #                     print(f"\n{api_response['message']}")
+            #                 else:
+            #                     print(f"\nError: Could not write to the file '{output_file}'.")
+                        
+            #             else:
+            #                 # No redirection, just print the result
+            #                 print(f"\n{result}")
+            #         else:
+            #             print(f"\nError: Command '{main_cmd}' not found.")
 
             ## YOUR CODE HERE
             ## Parse the command

@@ -36,14 +36,20 @@ def Write_file(fsDB: SqliteCRUD, oid:int, pid: int, filepath: str, content: str)
                 update_status = fsDB.update_data("files", "contents", content, "id", file_id)
                 if update_status["success"]:
                     print("\n\n\n\nupdated\n\n\n\n")
-                    return {"message": f"Content written to file '{filepath}' successfully."}
+                    return {
+                        "status": "success",
+                        "message": f"Content written to file '{filepath}' successfully."
+                        }
                 else:
                     raise HTTPException(status_code=500, detail=update_status["message"])
             else:
                 raise HTTPException(status_code=403, detail="Permission denied to write to the file.")
         else:
-            Create_file(fsDB, filepath)
+            Create_file(fsDB, oid, pid, filepath)
             Write_file(fsDB, oid, pid, filepath, content)
-            return {"message": f"Created new file {filepath} sucessfully with the required content."}
+            return {
+                "status": "success",
+                "message": f"Created new file {filepath} sucessfully with the required content."
+                }
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
