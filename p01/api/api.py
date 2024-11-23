@@ -122,5 +122,9 @@ def delete_directory(oid: int, pid: int, directory_name: str):
 def list_directories(oid: int, pid: int, name: str = None):
     return List_directories(fsDB, oid, pid, name)
 
+@app.get("/parentDir")
+def get_parent_directory(id: int):
+    return Get_parent_directory(fsDB, id)
+
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)

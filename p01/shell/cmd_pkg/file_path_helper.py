@@ -14,26 +14,45 @@ def file_path_helper(path: str):
 
     oid = Fs_state_manager.get_oid()
     pid = Fs_state_manager.get_pid()
+
+    if path_arr[0][0] == "/":
+      pid = 1
+    
     directories_exist = False
     file_exist = False
     
     if len(path_arr) > 0:
       for dir in path_arr:
-        filters = {"oid": oid, "pid": pid, "name": dir}
-        
-        try:
-          response = call_api("dirs", params=filters)
+        if dir == "..":
+          try:
+            response = call_api("parentDir", params={"id": pid})
+          except:
+            return {
+            "directories_exist" : directories_exist,
+            "file_exist": file_exist,
+            "file_name": file_name,
+            "pid": pid,
+            "oid": oid,
+          }
           if response:
-            pid = response[0]["id"]
+            pid = response["pid"]
+          
+        else:
+          filters = {"oid": oid, "pid": pid, "name": dir}
+          
+          try:
+            response = call_api("dirs", params=filters)
+            if response:
+              pid = response[0]["id"]
 
-        except:
-          return {
-          "directories_exist" : directories_exist,
-          "file_exist": file_exist,
-          "file_name": file_name,
-          "pid": pid,
-          "oid": oid,
-        }
+          except:
+            return {
+            "directories_exist" : directories_exist,
+            "file_exist": file_exist,
+            "file_name": file_name,
+            "pid": pid,
+            "oid": oid,
+          }
     
     directories_exist = True
 
