@@ -2,18 +2,19 @@ from cmd_pkg.pwd import pwd
 from .whoami import whoami
 from rich.console import Console
 from rich.style import Style
+from .fs_state_manager import Fs_state_manager 
 
 console = Console()
 
 def prompt():
   # Getting the current directory to show to the prompt
-  current_directory = pwd()
+  current_directory = Fs_state_manager.get_path()
 
-  # Sliting the path by "/"
-  path_parts = current_directory.split("/")
+  # # Sliting the path by "/"
+  # path_parts = current_directory.split("/")
 
-  # Get the last three folders
-  current_directory ="/".join(path_parts[-3:])
+  # # Get the last three folders
+  # current_directory ="/".join(path_parts[-3:])
 
   # Get current user
   user = whoami()

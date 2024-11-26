@@ -109,11 +109,11 @@ def rename_file_route(oid: int, old_pid: int, old_filename: str, new_pid: int, n
     return Rename_file(fsDB, oid, old_pid, old_filename, new_pid, new_filename)
 
 
-@app.post("/dir")
+@app.post("/createDir")
 def create_directory(oid: int, pid: int, directory_name: str):
     return Create_directory(fsDB, oid, pid, directory_name)
 
-@app.delete("/dir")
+@app.delete("/deleteDir")
 def delete_directory(oid: int, pid: int, directory_name: str):
     return Delete_directory(fsDB, oid, pid, directory_name)
 
@@ -121,6 +121,10 @@ def delete_directory(oid: int, pid: int, directory_name: str):
 @app.get("/dirs")
 def list_directories(oid: int, pid: int, name: str = None):
     return List_directories(fsDB, oid, pid, name)
+
+@app.get("/dirById")
+def dir_by_id(oid: int, id: int):
+    return Dir_by_id(fsDB, oid, id)
 
 @app.get("/parentDir")
 def get_parent_directory(id: int):

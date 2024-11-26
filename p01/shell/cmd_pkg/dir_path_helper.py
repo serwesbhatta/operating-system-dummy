@@ -9,24 +9,88 @@ def dir_path_helper(path: str):
     :return: Directory ID if valid, None otherwise.
     """
     try:
-        path_array = path.split("/")
+        if len(path) == 0 or path == None:
+            return {
+                "status": "fail",
+                "message": "Please provide the path or the file name",
+            }
+
+        path_arr = path.split("/")
         oid = Fs_state_manager.get_oid()
-        pid = Fs_state_manager.get_pid()
-        filters = {"oid": oid, "pid": pid}
-        current_dir_id = pid
 
-        for dir_name in path_array:
-            filters["name"] = dir_name
-            response = call_api("directories", "get", params=filters)
+        if path[0][0] == "/":
+            pid = 1
+            path_arr.pop(0)
 
-            if response and response.get("data"):
-                current_dir_id = response["data"][0]["id"]
-                filters["pid"] = current_dir_id  # Update for next level
-            else:
-                print(f"Directory '{dir_name}' does not exist.")
-                return None
+        else:
+            pid = Fs_state_manager.get_pid()
 
-        return current_dir_id
+        directories_exist = False
+
+        if len(path_arr) > 0:
+            for dir in path_arr:
+                if dir == "..":
+                    try:
+                        response = call_api("parentDir", params={"id": pid})
+
+                        if response:
+                            pid = response["pid"]
+                        else:
+                            return {
+                                "status": "fail",
+                                "message": "No parent directory found"
+                            }
+                    except:
+                        return {
+                            "status": "fail",
+                            "message": "Cannot resolve parent directory"
+                        }
+
+                else:
+                    filters = {"oid": oid, "pid": pid, "name": dir}
+
+                    try:
+                        response = call_api("dirs", params=filters)
+
+                        if response:
+                            pid = response[0]["id"]
+
+                        else:
+                            return {
+                                "status": "fail",
+                                "message": "Path not found",
+                                "directories_exist": directories_exist,
+                                "pid": pid,
+                                "oid": oid,
+                            }
+
+                    except:
+                        return {
+                            "status": "fail",
+                            "message": "Path not found",
+                            "directories_exist": directories_exist,
+                            "pid": pid,
+                            "oid": oid,
+                        }
+        else:
+            return {
+                "status": "fail",
+                "message": "Path not found",
+                "directories_exist": directories_exist,
+                "pid": pid,
+                "oid": oid,
+            }
+
+        directories_exist = True
+
+        return {
+            "status": "success",
+            "message": "Path found",
+            "directories_exist": directories_exist,
+            "pid": pid,
+            "oid": oid,
+        }
+
     except Exception as e:
-        print(f"Error in dir_path_helper: {e}")
-        return None
+        print(f"Error in file_path_helper: {e}")
+        return ""

@@ -83,7 +83,7 @@ def execute_command(main_cmd, args, input_data=None):
         return result
     else:
         return {
-            "message": f"Error: Command '{main_cmd}' not found."
+            "message": f"\nError: Command '{main_cmd}' not found."
         }
 
 if __name__ == "__main__":
@@ -206,6 +206,9 @@ if __name__ == "__main__":
 
                         try:
                             path_response = file_path_helper(redirection_file_path)
+
+                            if path_response["status"] == "fail":
+                                print(path_response["message"])
 
                             if path_response["directories_exist"]:
                                 oid = path_response["oid"]

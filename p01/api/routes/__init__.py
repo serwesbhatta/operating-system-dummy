@@ -9,6 +9,7 @@ from .list_directories import List_directories
 from .rename_file import Rename_file
 from .get_column_names import Get_column_names
 from .get_parent_directory import Get_parent_directory
+from .dir_by_id import Dir_by_id
 
 __all__ = [
     "Get_files",
@@ -21,5 +22,6 @@ __all__ = [
     "List_directories",
     "Rename_file",
     "Get_column_names",
-    "Get_parent_directory"
+    "Get_parent_directory",
+    "Dir_by_id",
 ]
