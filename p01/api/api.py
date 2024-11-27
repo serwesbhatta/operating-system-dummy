@@ -55,10 +55,11 @@ print("Checking for database at:", dbFilePath)
 
 if os.path.exists(dbFilePath):
     fsDB = SqliteCRUD(dbFilePath)
-    
+
 else:
     fsDB = None
     print("Database file not found.")
+
 
 class WriteData(BaseModel):
     oid: int
@@ -66,27 +67,31 @@ class WriteData(BaseModel):
     filepath: str
     content: str
 
-class CreateFile(BaseModel):
+
+class CreateFileOrDir(BaseModel):
     oid: int
     pid: int
     name: str
+
 
 # API Routes
 @app.get("/")
 async def docs_redirect():
     return RedirectResponse(url="/docs")
 
+
 @app.get("/columnNames")
 def get_column_names(table_name: str):
     return Get_column_names(fsDB, table_name)
 
+
 @app.get("/files")
-def get_files_route(oid: int, pid: int, name:str = None):
+def get_files_route(oid: int, pid: int, name: str = None):
     return Get_files(fsDB, oid, pid, name)
 
 
 @app.post("/touch")
-def create_file_route(data: CreateFile):
+def create_file_route(data: CreateFileOrDir):
     return Create_file(fsDB, data.oid, data.pid, data.name)
 
 
@@ -104,14 +109,18 @@ def read_file_content(oid: int, pid: int, filename: str):
 def write_file_route(data: WriteData):
     return Write_file(fsDB, data.oid, data.pid, data.filepath, data.content)
 
+
 @app.put("/mv")
-def rename_file_route(oid: int, old_pid: int, old_filename: str, new_pid: int, new_filename: str):
+def rename_file_route(
+    oid: int, old_pid: int, old_filename: str, new_pid: int, new_filename: str
+):
     return Rename_file(fsDB, oid, old_pid, old_filename, new_pid, new_filename)
 
 
 @app.post("/createDir")
-def create_directory(oid: int, pid: int, directory_name: str):
-    return Create_directory(fsDB, oid, pid, directory_name)
+def create_directory(data: CreateFileOrDir):
+    return Create_directory(fsDB, data.oid, data.pid, data.name)
+
 
 @app.delete("/deleteDir")
 def delete_directory(oid: int, pid: int, directory_name: str):
@@ -122,17 +131,21 @@ def delete_directory(oid: int, pid: int, directory_name: str):
 def list_directories(oid: int, pid: int, name: str = None):
     return List_directories(fsDB, oid, pid, name)
 
+
 @app.get("/dirById")
 def dir_by_id(oid: int, id: int):
     return Dir_by_id(fsDB, oid, id)
+
 
 @app.get("/parentDir")
 def get_parent_directory(id: int):
     return Get_parent_directory(fsDB, id)
 
+
 @app.get("/users")
 def get_users(user_id: int = None):
     return Get_users(fsDB, user_id)
+
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)
