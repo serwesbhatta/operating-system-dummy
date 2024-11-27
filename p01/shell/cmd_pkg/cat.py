@@ -2,7 +2,8 @@
 from cmd_pkg.fs_state_manager import Fs_state_manager
 from .call_api import call_api
 
-def cat(params = None):
+
+def cat(params=None):
     """Display the contents of one or more files."""
     if not params:
         return {"status": "fail", "message": "\nError: No file specified."}
@@ -14,21 +15,20 @@ def cat(params = None):
 
     try:
         response = call_api("files", params=filters)
-    
+
     except:
-        return {
-            "status": "fail",
-            "message": "\nCould not make a call to the api"
-        }
+        return {"status": "fail", "message": "\nCould not make a call to the api"}
 
     if response:
         content = response[0]["contents"]
-        return {
-            "status": "success",
-            "message": f"\n{content}"
-        }
-    
-    return {
-        "status": "fail",
-        "message": "\nSomething is wrong with this command"
-    }
+
+        if content == "":
+            return {
+                "status": "success",
+                "message": f"\nThis file doesn't have any content inside it.",
+            }
+
+        else:
+            return {"status": "success", "message": f"\n{content}"}
+
+    return {"status": "fail", "message": "\nDidn't find the file you were looking for."}
