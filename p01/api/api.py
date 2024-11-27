@@ -130,5 +130,9 @@ def dir_by_id(oid: int, id: int):
 def get_parent_directory(id: int):
     return Get_parent_directory(fsDB, id)
 
+@app.get("/users")
+def get_users(id: int = None):
+    return Get_users(fsDB, id)
+
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)
