@@ -131,8 +131,8 @@ def get_parent_directory(id: int):
     return Get_parent_directory(fsDB, id)
 
 @app.get("/users")
-def get_users(id: int = None):
-    return Get_users(fsDB, id)
+def get_users(user_id: int = None):
+    return Get_users(fsDB, user_id)
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)

@@ -3,9 +3,9 @@ from fastapi import HTTPException
 from .get_column_names import Get_column_names
 
 
-def Get_users(fsDB: SqliteCRUD, id: int = None):
+def Get_users(fsDB: SqliteCRUD, user_id: int = None):
     if id:
-        filters = {"id": id}
+        filters = {"user_id": user_id}
     else:
         filters = {}
 

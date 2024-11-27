@@ -35,9 +35,7 @@ def get_owner_name(oid):
     filters = {"user_id": oid}
     user_record = call_api("users", params=filters)
     if user_record:
-        return user_record[0][
-            "username"
-        ]  # Assuming username is the second column in the 'users' table
+        return user_record[0]["username"]
     return "unknown"
 
 
@@ -179,7 +177,4 @@ def ls(params=None):
     table_str = table.draw()
 
     # Return the formatted table as a string
-    return {
-        "status": "success",
-        "message": f"\n{table_str}"
-    }
+    return {"status": "success", "message": f"\n{table_str}"}
