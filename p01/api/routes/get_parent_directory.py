@@ -9,8 +9,7 @@ def Get_parent_directory(fsDB: SqliteCRUD, id: int):
                 pid = response["pid"]
                 return {
                     "status": "success",
-                    "message": "Successfully fetched pid",
-                    "pid": pid
+                    "message": pid
                 }
         except:
             return {

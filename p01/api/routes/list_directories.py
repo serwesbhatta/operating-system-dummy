@@ -17,11 +17,20 @@ def List_directories(fsDB: SqliteCRUD, oid: int, pid: int, name: str = None):
     if fsDB:
         # Fetch directories under the specified parent directory
         directories = fsDB.read_data("directories", filters)
-        
+
         if directories:
             result = Convert_to_dictionary("directories", directories)
-            return result
+            return {
+                "status": "success",
+                "message": result
+            }
         else:
-            raise HTTPException(status_code=404, detail="No directories found under the specified parent directory.")
+            return {
+                "status": "fail",
+                "message": "\nAPI: No directories found under the specified parent directory.",
+            }
     else:
-        raise HTTPException(status_code=500, detail="Database not initialized.")
+        return {
+            "status": "fail",
+            "message": "\nAPI: Database not initialized."
+        }

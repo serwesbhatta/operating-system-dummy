@@ -74,6 +74,14 @@ class CreateFileOrDir(BaseModel):
     name: str
 
 
+class Copy(BaseModel):
+    oid: int
+    source_pid: int
+    source_filename: str
+    target_pid: int
+    target_filename: str
+
+
 # API Routes
 @app.get("/")
 async def docs_redirect():
@@ -145,6 +153,18 @@ def get_parent_directory(id: int):
 @app.get("/users")
 def get_users(user_id: int = None):
     return Get_users(fsDB, user_id)
+
+
+@app.post("/copy")
+def copy_file(data: Copy):
+    return Copy_file(
+        fsDB,
+        data.oid,
+        data.source_pid,
+        data.source_filename,
+        data.target_pid,
+        data.target_filename,
+    )
 
 
 if __name__ == "__main__":

@@ -17,8 +17,11 @@ def Get_users(fsDB: SqliteCRUD, user_id: int = None):
         if files:
             column_names = Get_column_names(fsDB, "users")
             rows = [dict(zip(column_names, row)) for row in files]
-            return rows
+            return {
+                "status": "success",
+                "message": rows
+            }
         else:
-            raise HTTPException(status_code=404, detail="No files found.")
+            return {"status": "fail", "message": "\nAPI: No files found"}
     else:
-        raise HTTPException(status_code=500, detail="Database not initialized.")
+        return {"status": "fail", "message": "\nAPI: Database not initialized."}

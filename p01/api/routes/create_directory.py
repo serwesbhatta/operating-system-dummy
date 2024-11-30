@@ -23,6 +23,12 @@ def Create_directory(fsDB: SqliteCRUD, oid:int, pid: int, directory_name: str):
             1, 0, 1, 1, 0, 1)  # Permissions and default values
         )
         
-        return {"message": f"Directory '{directory_name}' created successfully."}
+        return {
+            "status": "success",
+            "message": f"\nAPI: Directory '{directory_name}' created successfully."
+            }
     else:
-        raise HTTPException(status_code=500, detail="Database not initialized.")
+        return {
+            "status": "fail",
+            "message": "\nAPI: Database not initialized."
+        }

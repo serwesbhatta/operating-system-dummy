@@ -28,8 +28,14 @@ def Get_files(fsDB: SqliteCRUD, oid: int, pid: int, name : str = None):
                         row["contents"] = Decode(row["contents"])
                     except:
                         row["contents"] = "Cannot Decode"
-            return rows
+            return {
+                "status": "success",
+                "message": rows
+            }
         else:
-            raise HTTPException(status_code=404, detail="No files found.")
+            return {
+                "status": "fail",
+                "message": f"\nCould not read the file {name}."
+            }
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")

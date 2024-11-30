@@ -1,4 +1,3 @@
-from cmd_pkg.pwd import pwd
 from .whoami import whoami
 from rich.console import Console
 from rich.style import Style
@@ -17,7 +16,7 @@ def prompt():
   # current_directory ="/".join(path_parts[-3:])
 
   # Get current user
-  user = whoami()
+  user = Fs_state_manager.get_current_user()
 
   # ANSI color codes
   GREEN = "\033[92m"  # Green color

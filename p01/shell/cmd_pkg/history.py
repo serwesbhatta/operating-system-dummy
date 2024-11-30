@@ -20,9 +20,9 @@ def history(cmd=None):
         # Attempt to fetch history file content via API'
         existing_history = call_api("files", "get", params=history_params)
 
-        if existing_history:
+        if existing_history["status"] == "success":
             if cmd:
-                previous_contents = existing_history[0]["contents"]
+                previous_contents = existing_history["message"][0]["contents"]
                 lines = previous_contents.strip().split("\n")
                 count = len(lines)
 
@@ -36,10 +36,10 @@ def history(cmd=None):
                     print("Failed to update history.")
             else:
                 response = call_api("files", params=history_params)
-                if response:
+                if response["status"] == "success":
                     return {
                         "status": "success",
-                        "message": response[0]["contents"]
+                        "message": response["message"][0]["contents"]
                     }
                 else:
                     return {

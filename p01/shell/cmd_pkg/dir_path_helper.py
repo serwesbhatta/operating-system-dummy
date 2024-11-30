@@ -33,17 +33,17 @@ def dir_path_helper(path: str):
                     try:
                         response = call_api("parentDir", params={"id": pid})
 
-                        if response:
-                            pid = response["pid"]
+                        if response["status"] == "success":
+                            pid = response["message"]
                         else:
                             return {
                                 "status": "fail",
-                                "message": "No parent directory found"
+                                "message": "\nNo parent directory found"
                             }
                     except:
                         return {
                             "status": "fail",
-                            "message": "Cannot resolve parent directory"
+                            "message": "\nCannot resolve parent directory"
                         }
 
                 else:
@@ -52,8 +52,9 @@ def dir_path_helper(path: str):
                     try:
                         response = call_api("dirs", params=filters)
 
-                        if response:
-                            pid = response[0]["id"]
+                        if response["status"] == "success":
+                            response_message = response["message"]
+                            pid = response_message[0]["id"]
 
                         else:
                             return {

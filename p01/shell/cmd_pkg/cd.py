@@ -1,4 +1,3 @@
-from .call_api import call_api
 from .fs_state_manager import Fs_state_manager
 from .dir_path_helper import dir_path_helper
 from .pwd import pwd
@@ -22,29 +21,32 @@ def cd(params=None):
             "status": "success",
             "message": "\nPath changed successfully"
         }
-    
+
     if pid == 1 and path == "..":
         return {
             "status": "fail",
             "message": "\nYou are already in the root directory."
         }
-        
+
     response = dir_path_helper(path)
 
-    if response["directories_exist"]:
-        pid = response["pid"]
+    if response["status"] == "success":
+        if response["directories_exist"]:
+            pid = response["pid"]
 
-        Fs_state_manager.set_pid(pid)
+            Fs_state_manager.set_pid(pid)
 
-        pwd()
+            pwd()
 
-        return {
-            "status": "success",
-            "message":"\nPath changed successfully"
-        }
+            return {
+                "status": "success",
+                "message":"\nPath changed successfully"
+            }
 
+        else:
+            return {
+                "status": "fail",
+                "message": "\nPath doesn't exist"
+            }
     else:
-        return {
-            "status": "fail",
-            "message": "\nPath doesn't exist"
-        }
+        return {"status": "fail", "message": response["message"]}

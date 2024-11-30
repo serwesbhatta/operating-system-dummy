@@ -36,6 +36,7 @@ def file_path_helper(path: str = None):
                         response = call_api("parentDir", params={"id": pid})
                     except:
                         return {
+                            "status": "fail",
                             "directories_exist": directories_exist,
                             "file_exist": file_exist,
                             "file_name": file_name,
@@ -50,14 +51,16 @@ def file_path_helper(path: str = None):
 
                     try:
                         response = call_api("dirs", params=filters)
-                        if response:
-                            # Hrere we are using pid to id and at the final point as welll we are using piod
+                        if response["status"] == "success":
+                            # Here we are using pid to id and at the final point as welll we are using piod
                             # it is beacuse when we are handling files we need the id of the folder to be pid
                             # of the file.
-                            pid = response[0]["id"]
+
+                            pid = response["message"][0]["id"]
 
                     except:
                         return {
+                            "status": "fail",
                             "directories_exist": directories_exist,
                             "file_exist": file_exist,
                             "file_name": file_name,
@@ -70,14 +73,14 @@ def file_path_helper(path: str = None):
         filters = {"oid": oid, "pid": pid, "name": file_name}
 
         try:
-            response = call_api("files", filters)
+            response = call_api("files", params=filters)
 
-            if response:
+            if response["status"] == "success":
                 file_exist = True
 
         except:
             pass
-
+ 
         return {
             "status": "success",
             "directories_exist": directories_exist,

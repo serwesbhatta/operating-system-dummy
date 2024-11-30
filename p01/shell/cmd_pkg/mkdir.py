@@ -12,7 +12,7 @@ def mkdir(params = None):
     filters = {"oid": oid, "pid": current_pid, "name": directory_name}
     existing_dir = call_api("dirs", params=filters)
 
-    if existing_dir:
+    if existing_dir["status"] == "success":
         return {
             "status": "fail",
             "message": f"\nError: Directory '{directory_name}' already exists in the current directory."
@@ -21,7 +21,7 @@ def mkdir(params = None):
     try:
         response = call_api("createDir", "post", data=filters)
 
-        if response:
+        if response["status"] == "success":
             return {
                 "status": "success",
                 "message": f"\nDirectory '{directory_name}' created successfully.",

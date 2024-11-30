@@ -13,11 +13,12 @@ def pwd(params=None):
             filters = {"oid": oid, "id": id}
             response = call_api("dirById", params=filters)
 
-            if response:
-                dir_name = response[0]["name"]
+            if response["status"] == "success":
+                directory = response["message"]
+                dir_name = directory[0]["name"]
                 dirs.append(dir_name)
-                id = response[0]["pid"]
-            
+                id = directory[0]["pid"]
+
             else:
                 return {
                     "status": "fail",
@@ -30,7 +31,6 @@ def pwd(params=None):
             path = "~/"+ "/".join(dirs)
             Fs_state_manager.set_path(path)
 
-        
         else:
             path = "~"
             Fs_state_manager.set_path(path)
@@ -39,10 +39,9 @@ def pwd(params=None):
             "status": "success",
             "message": f"\n{path}"
         }
-    
+
     except:
         return {
             "status": "fail",
             "message": "Cannot process print working directory"
         }
-        
