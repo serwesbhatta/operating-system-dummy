@@ -1,6 +1,7 @@
 from .call_api import call_api
 from .fs_state_manager import Fs_state_manager
 from .file_path_helper import file_path_helper
+from .dir_path_helper import dir_path_helper
 
 
 def cp(params=None):
@@ -28,27 +29,15 @@ def cp(params=None):
     source_response = file_path_helper(source_path)
 
     if source_response["status"] == "success" and source_response["file_exist"] == True:
-        target_response = file_path_helper(target_path)
+        target_response = dir_path_helper(target_path)
 
-        if (
-            target_response["status"] == "success"
-            and target_response["file_exist"] == True
-        ):
-            return {
-                "status": "fail",
-                "message": "\nFile already exist in the target path",
-            }
-
-        elif (
-            target_response["status"] == "success"
-            and target_response["file_exist"] == False
-        ):
+        if target_response["status"] == "success":
             oid = source_response["oid"]
             source_pid = source_response["pid"]
             source_filename = source_response["file_name"]
 
             target_pid = target_response["pid"]
-            target_filename = target_response["file_name"]
+            target_filename = source_filename
 
             filters = {
                 "oid": oid,
