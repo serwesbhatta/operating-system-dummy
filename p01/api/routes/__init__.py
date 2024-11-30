@@ -6,7 +6,7 @@ from .write_file import Write_file
 from .create_directory import Create_directory
 from .delete_directory import Delete_directory
 from .list_directories import List_directories
-from .rename_file import Rename_file
+from .move_file import Move_file
 from .get_column_names import Get_column_names
 from .get_parent_directory import Get_parent_directory
 from .dir_by_id import Dir_by_id
@@ -22,10 +22,10 @@ __all__ = [
     "Create_directory",
     "Delete_directory",
     "List_directories",
-    "Rename_file",
+    "Move_file",
     "Get_column_names",
     "Get_parent_directory",
     "Dir_by_id",
     "Get_users",
-    "Copy_file"
+    "Copy_file",
 ]

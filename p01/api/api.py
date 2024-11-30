@@ -119,10 +119,15 @@ def write_file_route(data: WriteData):
 
 
 @app.put("/mv")
-def rename_file_route(
-    oid: int, old_pid: int, old_filename: str, new_pid: int, new_filename: str
-):
-    return Rename_file(fsDB, oid, old_pid, old_filename, new_pid, new_filename)
+def move_file_route(data: Copy):
+    return Move_file(
+        fsDB,
+        data.oid,
+        data.source_pid,
+        data.source_filename,
+        data.target_pid,
+        data.target_filename,
+    )
 
 
 @app.post("/createDir")

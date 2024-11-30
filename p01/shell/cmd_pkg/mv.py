@@ -30,19 +30,7 @@ def mv(params=None):
     if source_response["status"] == "success" and source_response["file_exist"] == True:
         target_response = file_path_helper(target_path)
 
-        if (
-            target_response["status"] == "success"
-            and target_response["file_exist"] == True
-        ):
-            return {
-                "status": "fail",
-                "message": "\nFile already exist in the target path",
-            }
-
-        elif (
-            target_response["status"] == "success"
-            and target_response["file_exist"] == False
-        ):
+        if target_response["status"] == "success":
             oid = source_response["oid"]
             source_pid = source_response["pid"]
             source_filename = source_response["file_name"]
@@ -59,12 +47,12 @@ def mv(params=None):
             }
 
             try:
-                api_response = call_api("copy", "post", data=filters)
+                api_response = call_api("mv", "put", data=filters)
 
                 if api_response["status"] == "success":
                     return {
                         "status": "success",
-                        "message": f"\nSuccessfully copied file to {target_path}.",
+                        "message": f"\nSuccessfully moved file to {target_path}.",
                     }
 
                 message = api_response["message"]
