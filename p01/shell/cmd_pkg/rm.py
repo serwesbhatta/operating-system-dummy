@@ -4,7 +4,6 @@ from cmd_pkg.fs_state_manager import Fs_state_manager
 def rm(params=None):
     """Remove a file from the current directory."""
     if params == None or len(params) == 0:
-        print("Error: No file name specified.")
         return {"status": "fail", "message": "\nError: No file name specified."}
 
     file_name = params[0]
