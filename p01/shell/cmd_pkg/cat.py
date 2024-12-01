@@ -19,8 +19,8 @@ def cat(params=None):
     except:
         return {"status": "fail", "message": "\nCould not make a call to the api"}
 
-    if response:
-        content = response[0]["contents"]
+    if response["status"] == "success":
+        content = response["message"][0]["contents"]
 
         if content == "":
             return {
