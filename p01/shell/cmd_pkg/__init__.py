@@ -15,6 +15,7 @@ from .mkdir import mkdir
 from .touch import touch
 from .rm import rm
 from .mv import mv
+from .tail import tail
 from .fs_state_manager import FileSystemStateManager
 
 __all__ = [
@@ -36,4 +37,5 @@ __all__ = [
     "touch",
     "rm",
     "mv",
+    "tail",
 ]

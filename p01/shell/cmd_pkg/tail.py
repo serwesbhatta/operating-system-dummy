@@ -1,54 +1,63 @@
-from database.sqliteCRUD import SqliteCRUD
-from cmd_pkg.fs_state_manager import Fs_state_manager
+from .call_api import call_api
+from .fs_state_manager import Fs_state_manager
 
-fsDB = SqliteCRUD("../database/data/filesystem.db")
 
 def tail(params):
-    """Display the last N lines of a file."""
-    if len(params) < 1:
-        print("\nError: No file specified.\n")
-        return
+    """Display the first N lines of a file."""
+    if params == None or len(params) < 1:
+        return {"status": "fail", "message": "\nError: No file specified."}
 
     file_name = params[0]
     num_lines = 10  # Default to 10 if no -n option is provided
 
     # Check if -n option is provided
-    if len(params) == 3 and params[1] == '-n':
+    if len(params) == 3 and params[1] == "-n":
         try:
             num_lines = int(params[2])
             if num_lines < 1:
-                print("\nError: Number of lines must be a positive integer.\n")
-                return
+                return {
+                    "status": "fail",
+                    "message": "\nError: Number of lines must be a positive integer.",
+                }
         except ValueError:
-            print("\nError: Invalid number of lines specified. It must be an integer.\n")
-            return
-    elif len(params) > 1 and params[1] != '-n':
-        print("\nError: Invalid command format. Use -n followed by a number.\n")
-        return
+            return {
+                "status": "fail",
+                "message": "\nError: Invalid number of lines specified. It must be an integer.",
+            }
+    elif len(params) > 1 and params[1] != "-n":
+        return {
+            "status": "fail",
+            "message": "\nError: Invalid command format. Use -n followed by a number.",
+        }
 
-    current_pid = Fs_state_manager.get_pid()
+    elif len(params) > 3:
+        return {"status": "fail", "message": "\nError: Too many parameters passed."}
 
-    # Fetch file contents from the database
-    if fsDB.file_exists(file_name, current_pid):
-        file_contents = fsDB.get_file_contents(file_name, current_pid)
+    pid = Fs_state_manager.get_pid()
+    oid = Fs_state_manager.get_oid()
 
-        if file_contents is not None:
-            # Handle binary files
-            if isinstance(file_contents, bytes):
-                try:
-                    file_contents = file_contents.decode('utf-8')
-                except UnicodeDecodeError:
-                    print(f"\nError: File '{file_name}' contains binary data and cannot be displayed as text.\n")
-                    return
+    filters = {"oid": oid, "pid": pid, "name": file_name}
 
-            # Split file contents into lines
-            lines = file_contents.split('\n')
-            # Print the last num_lines
-            print("\n".join(lines[-num_lines:]))
+    try:
+        response = call_api("files", params=filters)
 
+        # Fetch file contents from the database
+        if response["status"] == "success":
+            file_contents = response["message"][0]["contents"]
+
+            if file_contents is not None:
+                lines = file_contents.split("\n")
+                message = "\n".join(lines[-num_lines:])
+                return {"status": "success", "message": message}
+            else:
+                return {
+                    "status": "fail",
+                    "message": f"\nError: Could not read the contents of '{file_name}'.",
+                }
         else:
-            print(f"\nError: Could not read the contents of '{file_name}'.\n")
-    else:
-        print(f"\nError: File '{file_name}' does not exist in the current directory.\n")
-
-    return ""
+            return {
+                "status": "fail",
+                "message": f"\nError: File '{file_name}' does not exist in the current directory.",
+            }
+    except:
+        return {"status": "fail", "message": "\nCould not make a call to api"}
