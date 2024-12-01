@@ -1,24 +1,43 @@
-from database.sqliteCRUD import SqliteCRUD
+from .call_api import call_api
 from cmd_pkg.fs_state_manager import Fs_state_manager
 
-fsDB = SqliteCRUD("../database/data/filesystem.db")
-
-def rm(params):
+def rm(params=None):
     """Remove a file from the current directory."""
-    if len(params) == 0:
+    if params == None or len(params) == 0:
         print("Error: No file name specified.")
-        return
+        return {"status": "fail", "message": "\nError: No file name specified."}
 
     file_name = params[0]
-    current_pid = Fs_state_manager.get_pid()
-    filters = {"name": file_name, "pid": current_pid}
-    existing_file = fsDB.read_data("files", filters)
+    pid = Fs_state_manager.get_pid()
+    oid = Fs_state_manager.get_oid()
+    filters = {"oid": oid, "pid": pid, "name": file_name}
+    print(filters)
+    try:
+        existing_file = call_api("files", params=filters)
 
-    if existing_file:
-        fsDB.delete_data("files", "name", file_name)  # Assuming name is unique per directory
-        print(f"File '{file_name}' removed successfully.")
-    else:
-        print(f"Error: File '{file_name}' does not exist in the current directory.")
+        if existing_file["status"] == "success":
+            response = call_api("rm", "delete", data=filters)  # Assuming name is unique per directory
+            
+            if response["status"] == "success":
+                return {
+                    "status": "success",
+                    "message": f"\nSuccessfully deleted {file_name}."
+                }
 
-    return ""
-
+            else:
+                return {
+                    "status": "fail",
+                    "message": f"\nCould not delete {file_name}."
+                }
+        else:
+            return {
+                "status": "fail",
+                "message": f"Error: File '{file_name}' does not exist in the current directory.",
+            }
+            print()
+    except:
+        return {
+            "status": "fail",
+            "message": "\nCould not make a call to the api."
+        }
+    

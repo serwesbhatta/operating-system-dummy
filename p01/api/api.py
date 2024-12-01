@@ -68,7 +68,7 @@ class WriteData(BaseModel):
     content: str
 
 
-class CreateFileOrDir(BaseModel):
+class IdentifyFileOrDir(BaseModel):
     oid: int
     pid: int
     name: str
@@ -99,13 +99,13 @@ def get_files_route(oid: int, pid: int, name: str = None):
 
 
 @app.post("/touch")
-def create_file_route(data: CreateFileOrDir):
+def create_file_route(data: IdentifyFileOrDir):
     return Create_file(fsDB, data.oid, data.pid, data.name)
 
 
 @app.delete("/rm")
-def delete_file_route(oid: int, pid: int, filename: str):
-    return Delete_file(fsDB, oid, pid, filename)
+def delete_file_route(data:IdentifyFileOrDir):
+    return Delete_file(fsDB, data.oid, data.pid, data.name)
 
 
 @app.get("/file")
@@ -131,7 +131,7 @@ def move_file_route(data: Copy):
 
 
 @app.post("/createDir")
-def create_directory(data: CreateFileOrDir):
+def create_directory(data: IdentifyFileOrDir):
     return Create_directory(fsDB, data.oid, data.pid, data.name)
 
 
