@@ -38,7 +38,8 @@ def ls(params=None):
     long_format = False
     human_format = False
 
-    flags = get_flags(params)
+    flags = get_flags(params)["flags"]
+    allowed_flags = ["l", "a", "h"]
 
     if flags:
         if "a" in flags:
@@ -47,6 +48,13 @@ def ls(params=None):
             long_format = True
         if "h" in flags:
             human_format = True
+        for flag in flags:
+            if flag not in allowed_flags:
+                return {
+                    "status": "fail",
+                    "message": "\nInvalid flags"
+                }
+
 
     # Fetch files and directories from the database
     pid = Fs_state_manager.get_pid()
