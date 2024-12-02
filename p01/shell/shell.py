@@ -70,13 +70,13 @@ def load_commands():
 
 # # Function to get flags
 # def get_flags(args):
-    
+
 
 # Helper function to execute a single command
 def execute_command(main_cmd, args, input_data=None):
     if main_cmd in cmds:
         # Check if the command can accept input data and provide it if available
-        if input_data is not None and 'accepts_input' in cmds[main_cmd]:
+        if input_data is not None and main_cmd in ["grep", "head", "tail"]:
             result = cmds[main_cmd](params=args, input=input_data)
         else:
             result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
@@ -201,38 +201,38 @@ if __name__ == "__main__":
                     
                     print(result["message"])
 
-                    if redirection:
-                        content = result["message"]
+                if redirection:
+                    content = result["message"]
 
-                        try:
-                            path_response = file_path_helper(redirection_file_path)
+                    try:
+                        path_response = file_path_helper(redirection_file_path)
 
-                            if path_response["status"] == "fail":
-                                print(path_response["message"])
+                        if path_response["status"] == "fail":
+                            print(path_response["message"])
 
-                            if path_response["directories_exist"]:
-                                oid = path_response["oid"]
-                                pid = path_response["pid"]
-                                redirection_file = path_response["file_name"]
-                                redirection_filters = {
-                                    "oid": oid,
-                                    "pid": pid,
-                                    "filepath": redirection_file,
-                                    "content": content
-                                }
+                        if path_response["directories_exist"]:
+                            oid = path_response["oid"]
+                            pid = path_response["pid"]
+                            redirection_file = path_response["file_name"]
+                            redirection_filters = {
+                                "oid": oid,
+                                "pid": pid,
+                                "filepath": redirection_file,
+                                "content": content
+                            }
 
-                        except:
-                            print("Cannot resolve path successfully.")
+                    except:
+                        print("Cannot resolve path successfully.")
 
-                        try:
-                            response = call_api("write", "put", data=redirection_filters)
+                    try:
+                        response = call_api("write", "put", data=redirection_filters)
 
-                            if response["status"] == "success":
-                                print(response["message"])
-                            else:
-                                print(f"Failed to write to file {redirection_file_path}")
-                        except:
-                            print("Can't process the redirection request.")
+                        if response["status"] == "success":
+                            print(response["message"])
+                        else:
+                            print(f"Failed to write to file {redirection_file_path}")
+                    except:
+                        print("Can't process the redirection request.")
             else:
                 # If there is no cmd then print the prompt in a new line
                 print("\n")
@@ -320,7 +320,6 @@ if __name__ == "__main__":
         else:
             cmd += char  # add typed character to our "cmd"
             print_cmd(cmd)  # print the cmd out
-
 
 
 # Get the docstring of a function
