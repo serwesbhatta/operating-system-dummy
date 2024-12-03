@@ -12,7 +12,7 @@ def dir_path_helper(path: str):
         if len(path) == 0 or path == None:
             return {
                 "status": "fail",
-                "message": "Please provide the path or the file name",
+                "message": "\nPlease provide the path or the file name",
             }
 
         path_arr = path.split("/")

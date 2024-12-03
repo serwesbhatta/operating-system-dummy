@@ -6,7 +6,7 @@ def cd(params=None):
     if params == None:
         return {
             "status": "fail",
-            "message": "Please specify the path"
+            "message": "\nPlease specify the path"
         }
 
     path = params[0]
@@ -19,7 +19,7 @@ def cd(params=None):
         pwd()
         return {
             "status": "success",
-            "message": "\nPath changed successfully"
+            "message": ""
         }
 
     if pid == 1 and path == "..":
@@ -40,7 +40,7 @@ def cd(params=None):
 
             return {
                 "status": "success",
-                "message":"\nPath changed successfully"
+                "message":""
             }
 
         else:
@@ -49,4 +49,5 @@ def cd(params=None):
                 "message": "\nPath doesn't exist"
             }
     else:
-        return {"status": "fail", "message": response["message"]}
+        message = response["message"]
+        return {"status": "fail", "message": f"\n{message}"}
