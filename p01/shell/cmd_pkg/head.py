@@ -1,19 +1,38 @@
 from .call_api import call_api
 from .fs_state_manager import Fs_state_manager
+from .get_flags import get_flags
 
 
-def head(params):
+def head(params=None, input = None):
     """Display the first N lines of a file."""
-    if params == None or len(params) < 1:
+    if (params == None and input == None):
         return {"status": "fail", "message": "\nError: No file specified."}
 
-    file_name = params[0]
+    file_name = ""
     num_lines = 10  # Default to 10 if no -n option is provided
 
-    # Check if -n option is provided
-    if len(params) == 3 and params[1] == "-n":
+    allowed_flags = ["n"]
+    flags_response = get_flags(allowed_flags, params)
+    flags = flags_response["flags"]
+
+    if flags_response["invalid_flags"]:
+        return {
+            "status": "fail",
+            "message": "\nOnvalid flags"
+        }
+
+    if flags:
+        flag_index = flags_response["flags_index"][0]
+        params.pop(flag_index)
+
+        if params == []:
+            return {
+                "status": "fail",
+                "message": "\nPlease specify the number" 
+            }
+        num_lines_index = flag_index
         try:
-            num_lines = int(params[2])
+            num_lines = int(params[num_lines_index])
             if num_lines < 1:
                 return {
                     "status": "fail",
@@ -24,16 +43,21 @@ def head(params):
                 "status": "fail",
                 "message": "\nError: Invalid number of lines specified. It must be an integer.",
             }
-    elif len(params) > 1 and params[1] != "-n":
+
+        params.pop(flag_index)
+
+        if params == []:
+            return {
+                "status": "fail",
+                "message": "\nPlease enter the file name as well"
+            }
+        
+        file_name = params[0]
+
+    elif flags == [] and len(params) > 1:
         return {
             "status": "fail",
-            "message": "\nError: Invalid command format. Use -n followed by a number.",
-        }
-    
-    elif len(params) > 3:
-        return {
-            "status": "fail",
-            "message": "\nError: Too many parameters passed."
+            "message": "\nToo many parameters",
         }
 
     pid = Fs_state_manager.get_pid()
@@ -67,4 +91,3 @@ def head(params):
             }
     except:
         return {"status": "fail", "message": "\nCould not make a call to api"}
- 
