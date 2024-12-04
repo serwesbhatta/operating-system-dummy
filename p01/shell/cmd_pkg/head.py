@@ -51,7 +51,7 @@ def head(params=None, input = None):
                 "status": "fail",
                 "message": "\nPlease enter the file name as well"
             }
-        
+
         file_name = params[0]
 
     elif flags == [] and len(params) > 1:
@@ -59,6 +59,9 @@ def head(params=None, input = None):
             "status": "fail",
             "message": "\nToo many parameters",
         }
+
+    else:
+        file_name = params[0]
 
     pid = Fs_state_manager.get_pid()
     oid = Fs_state_manager.get_oid()
