@@ -8,27 +8,28 @@ def cat(params=None):
     if not params:
         return {"status": "fail", "message": "\nError: No file specified."}
 
-    filename = params[0]
-    current_pid = Fs_state_manager.get_pid()
-    oid = Fs_state_manager.get_oid()
-    filters = {"name": filename, "pid": current_pid, "oid": oid}
+    total_file_contents = ""
 
-    try:
-        response = call_api("files", params=filters)
+    for param in params:
+        filename = param
+        current_pid = Fs_state_manager.get_pid()
+        oid = Fs_state_manager.get_oid()
+        filters = {"name": filename, "pid": current_pid, "oid": oid}
 
-    except:
-        return {"status": "fail", "message": "\nCould not make a call to the api"}
+        try:
+            response = call_api("files", params=filters)
+            
+        except:
+            return {"status": "fail", "message": "\nCould not make a call to the api"}
 
-    if response["status"] == "success":
-        content = response["message"][0]["contents"]
-
-        if content == "":
-            return {
-                "status": "success",
-                "message": f"\nThis file doesn't have any content inside it.",
-            }
-
+        if response["status"] == "success":
+            content = response["message"][0]["contents"]
+            total_file_contents += content
+        
         else:
-            return {"status": "success", "message": f"\n{content}"}
+            return {"status": "fail", "message": "\nDidn't find the file you were looking for."}
 
-    return {"status": "fail", "message": "\nDidn't find the file you were looking for."}
+    return {
+        "status": "success",
+        "message": f"\n{total_file_contents}"
+    }
