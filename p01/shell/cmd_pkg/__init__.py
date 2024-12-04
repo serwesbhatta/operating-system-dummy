@@ -16,6 +16,7 @@ from .touch import touch
 from .rm import rm
 from .mv import mv
 from .tail import tail
+from .wc import wc
 from .fs_state_manager import FileSystemStateManager
 
 __all__ = [
@@ -38,4 +39,5 @@ __all__ = [
     "rm",
     "mv",
     "tail",
+    "wc",
 ]
