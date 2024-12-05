@@ -12,6 +12,7 @@ from .get_parent_directory import Get_parent_directory
 from .dir_by_id import Dir_by_id
 from .get_users import Get_users
 from .copy_file import Copy_file
+from .set_permissions import Set_permissions
 
 __all__ = [
     "Get_files",
@@ -28,4 +29,5 @@ __all__ = [
     "Dir_by_id",
     "Get_users",
     "Copy_file",
+    "Set_permissions",
 ]

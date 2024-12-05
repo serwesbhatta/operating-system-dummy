@@ -82,6 +82,14 @@ class Copy(BaseModel):
     target_filename: str
 
 
+class Permission(BaseModel):
+    file: bool
+    oid: int
+    pid: int
+    name: str
+    mode: str
+
+
 # API Routes
 @app.get("/")
 async def docs_redirect():
@@ -104,7 +112,7 @@ def create_file_route(data: IdentifyFileOrDir):
 
 
 @app.delete("/rm")
-def delete_file_route(data:IdentifyFileOrDir):
+def delete_file_route(data: IdentifyFileOrDir):
     return Delete_file(fsDB, data.oid, data.pid, data.name)
 
 
@@ -170,6 +178,11 @@ def copy_file(data: Copy):
         data.target_pid,
         data.target_filename,
     )
+
+
+@app.put("/setpermissions")
+def set_permissions(data: Permission):
+    return Set_permissions(fsDB, data.file, data.oid, data.pid, data.name, data.mode)
 
 
 if __name__ == "__main__":

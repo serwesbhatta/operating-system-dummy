@@ -1,65 +1,68 @@
-from .get_flags import get_flags
-from api.routes.set_file_permissions import Set_file_permissions
+from .call_api import call_api
 from .fs_state_manager import Fs_state_manager
-from database.sqliteCRUD import SqliteCRUD
-from .cd import cd
+from .file_path_helper import file_path_helper
+from .dir_path_helper import dir_path_helper
 
-# Ensure fsDB is initialized (you might need to adjust the path)
-fsDB = SqliteCRUD("../database/data/filesystem.db")
+def chmod(params=None):
+   if params == None:
+      return {
+         "status": "fail",
+         "message": "\nPlease write the permission to be set with the filenamne"
+      }
+   
+   if len(params) < 2 or len(params) > 2:
+      return {
+         "status": "fail",
+         "message": "\nPlease specify permission and then filename."
+      }
 
-def chmod(params):
-  # Split the params_str to extract mode and path
-  print()
-  print(type(params))
-  print(params)
+   try:
+      permission = int(params[0])
+   except:
+     return {
+          "status": "fail",
+          "message": "\nPlease enter permission after chmod command."
+     }
+   
+   mode = params[0]
+   path = params[1]
+   name = ""
+   file_exist = False
+   
+   file_path_response = file_path_helper(path)
 
-  if not params:
-      return False
-  
-  mode = params[0]
-  full_path = ' '.join(params[1:])  # Join the remaining parts to form the path
+   if file_path_response["status"] == "success" and file_path_response["file_exist"]:
+      name = file_path_response["file_name"]
+      file_exist = False
 
-  try:
-    path, file_name = full_path.rsplit('/', 1)  # Split the path on the last occurrence of '/'
-  except ValueError:
-      path = ''  # Default to empty if no '/' found
-      file_name = full_path  # The full path is the file name
+   else:
+      dir_path = path
+      dir_path_response = dir_path_helper(dir_path)
 
-  last_directory = path.split('/')[-1]
-  path = [path]
-  print(path)
-  cd(path)
+      if dir_path_response["status"] == "success" and dir_path_response["directories_exist"]:
+         name = params[1].split("/")[-1]
 
-  if Fs_state_manager.current_directory == last_directory:
-    message = Set_file_permissions(fsDB, mode, path)
-    if message == True:
-       print("File permission changed successfully")
-    else:
-       print("Error. Cannot change the permissions")
-  else:
-     print("Path is not available so cannot do chmod")
+      else:
+         return {
+            "status": "fail",
+            "message": "\nPath not found."
+         }
+   
+   oid = Fs_state_manager.get_oid()
+   pid = Fs_state_manager.get_pid()
 
-  print(f"This is the full_path: {full_path}")
-  print(f"This is the path {path}")
-  print(f"This is the flename {file_name}")
+   filters = {"file": file_exist, "oid": oid, "pid": pid, "name": name, "mode": mode}
 
-  # if not path or not mode:
-  #     return "Error: Missing path or mode argument."
+   try:
+      response = call_api("setpermissions", "put", data=filters)
 
-  # try:
-  #     # Convert mode from string in octal format to an integer
-  #     mode = int(mode, 8)
-  # except ValueError:
-  #     return "Error: Invalid mode. Please use a valid octal number."
-  
-  # # Get file or directory ID based on path
-  # file_id = fsDB.get_file_id_by_path(path)
-  # if file_id is None:
-  #     return f"Error: No file found at {path}."
-
-  # # Update permissions in the database
-  # success = fsDB.update_permissions(file_id, mode)
-  # if success:
-  #     return "Permissions changed successfully."
-  # else:
-  #     return "Failed to change permissions."
+      if response["status"] == "success":
+         return {
+            "status": "success",
+            "message": response["message"]
+         }
+   except:
+      return {
+         "status": "fail",
+         "message": "\nUnable to call api"
+      }
