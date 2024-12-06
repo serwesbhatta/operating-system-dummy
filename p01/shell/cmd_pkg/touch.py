@@ -13,7 +13,10 @@ def touch(params = None):
     """Create a new file or update the timestamp of an existing file."""
     if not params:
         print("\nPlease specify the filename or the filepath")
-        return ""
+        return {
+            "status": "fail",
+            "message": "\nPlease specify the filename or the filepath",
+        }
 
     file_path = params[0]
     file_path_arr = file_path.split("/")
@@ -27,28 +30,38 @@ def touch(params = None):
             oid = response["oid"]
             pid = response["pid"]
             file_name = file_path_arr[-1]
+
+            if "." not in file_name:
+                file_name = file_name + ".txt"
+
             new_file_filters = {"oid": oid, "pid": pid, "name": file_name}
             new_file_response = call_api("touch", "post", data=new_file_filters)
-            if new_file_response:
-                message = new_file_response["message"]
-                print(f"\n{message}")
+            if new_file_response["status"] == "success":
+                return {
+                    "status": "pass",
+                    "message": ""
+                }
             else:
-                print("\nCannot create the file")
+                return {"status": "fail", "message": "\nCannot create the file"}
         else:
-            print("\nDirectory not found")
-    
+            return {"status": "fail", "message": "\nDirectory not found"}
+
     else:
         pid = Fs_state_manager.get_pid()
         oid = Fs_state_manager.get_oid()
         file_name = file_path
 
+        if "." not in file_name:
+            file_name = file_name + ".txt"
+
         filters = {"oid": oid, "pid": pid, "name": file_name}
 
         new_file_response = call_api("touch", "post", data=filters)
 
-        if new_file_response:
-            message = new_file_response["message"]
-            print(f"\n{message}")
+        if new_file_response["status"] == "success":
+            return {
+                "status": "success",
+                "message": ""
+            }
         else:
-            print("Cannot create the file")
-    return ""
+            return {"status": "fail", "message": "\nCannot create the file"}

@@ -13,6 +13,7 @@ from .dir_by_id import Dir_by_id
 from .get_users import Get_users
 from .copy_file import Copy_file
 from .set_permissions import Set_permissions
+from .rename_file import Rename_file
 
 __all__ = [
     "Get_files",
@@ -30,4 +31,5 @@ __all__ = [
     "Get_users",
     "Copy_file",
     "Set_permissions",
+    "Rename_file",
 ]

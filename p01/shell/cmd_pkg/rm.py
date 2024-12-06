@@ -10,7 +10,6 @@ def rm(params=None):
     pid = Fs_state_manager.get_pid()
     oid = Fs_state_manager.get_oid()
     filters = {"oid": oid, "pid": pid, "name": file_name}
-    print(filters)
     try:
         existing_file = call_api("files", params=filters)
 

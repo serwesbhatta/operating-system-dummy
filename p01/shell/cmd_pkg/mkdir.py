@@ -6,6 +6,13 @@ def mkdir(params = None):
         return {"status": "fail", "message": "\nError: No directory name specified."}
 
     directory_name = params[0]
+
+    if "." in directory_name:
+        return {
+            "status": "fail",
+            "message": "\nDirectory name cannot have extensions."
+        }
+
     current_pid = Fs_state_manager.get_pid()
     oid = Fs_state_manager.get_oid()
 

@@ -17,7 +17,7 @@ def Create_file(fsDB: SqliteCRUD, oid: int, pid: int, name: str):
         print("Database is initialized")
 
         if existing_file:
-            return {"message": "File already exists"}
+            return {"status ": "fail", "message": "File already exists"}
             # raise HTTPException(status_code=400, detail="File already exists.")
 
         print("Inserting Data")
@@ -30,6 +30,6 @@ def Create_file(fsDB: SqliteCRUD, oid: int, pid: int, name: str):
 
         fsDB.insert_data("files", values)
         
-        return {"message": f"File '{name}' created successfully."}
+        return {"status": "success", "message": f"File '{name}' created successfully."}
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")

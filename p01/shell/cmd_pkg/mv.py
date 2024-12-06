@@ -1,6 +1,7 @@
 from .call_api import call_api
-from .fs_state_manager import Fs_state_manager
 from .file_path_helper import file_path_helper
+from .dir_path_helper import dir_path_helper
+from .fs_state_manager import Fs_state_manager
 
 
 def mv(params=None):
@@ -28,32 +29,36 @@ def mv(params=None):
     source_response = file_path_helper(source_path)
 
     if source_response["status"] == "success" and source_response["file_exist"] == True:
-        target_response = file_path_helper(target_path)
+
+        target_file_response = file_path_helper(target_path)
+
+        if target_file_response["status"] == "success" and target_file_response["file_exist"] == "success":
+            return {
+                "status": "fail",
+                "message": "\nFile already exists."
+            }
+
+        target_response = dir_path_helper(target_path)
 
         if target_response["status"] == "success":
             oid = source_response["oid"]
             source_pid = source_response["pid"]
             source_filename = source_response["file_name"]
-
             target_pid = target_response["pid"]
-            target_filename = target_response["file_name"]
 
             filters = {
                 "oid": oid,
-                "source_pid": source_pid,
-                "source_filename": source_filename,
+                "pid": source_pid,
+                "name": source_filename,
                 "target_pid": target_pid,
-                "target_filename": target_filename,
             }
 
+            print(filters)
             try:
                 api_response = call_api("mv", "put", data=filters)
 
                 if api_response["status"] == "success":
-                    return {
-                        "status": "success",
-                        "message": f"\nSuccessfully moved file to {target_path}.",
-                    }
+                    return {"status": "success", "message": ""}
 
                 message = api_response["message"]
                 return {"status": "fail", "message": message}
@@ -61,10 +66,30 @@ def mv(params=None):
             except:
                 return {"status": "fail", "message": "\nCould not make a call to api"}
         else:
-            return {
-                "status": "fail",
-                "message": f"\nTarget path {target_path} not found.",
-            }
+            if "." in target_path and len(target_path.split("/")) == 1:
+                oid = Fs_state_manager.get_oid()
+                pid = Fs_state_manager.get_pid()
+                name = source_response["file_name"]
+                new_name = target_path
+
+                filters = {"oid": oid, "pid": pid, "name": name, "new_name": new_name}
+                rename_response = call_api("renameFile", "put", data=filters)
+
+                if rename_response["status"] == "success":
+                    return {
+                        "status": "success",
+                        "message": ""
+                    }
+                else:
+                    return {
+                        "status": "fail",
+                        "message": "\nUnable ton rename the file."
+                    }
+            else:
+                return {
+                    "status": "fail",
+                    "message": f"\nTarget path {target_path} not found.",
+                }
     else:
         return {
             "status": "fail",

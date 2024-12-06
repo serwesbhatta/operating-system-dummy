@@ -1,6 +1,5 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from dotenv import load_dotenv
 import uvicorn
 from datetime import datetime
 from pydantic import BaseModel
@@ -17,8 +16,6 @@ from database import SqliteCRUD
 # import different routes as modules
 from routes import *
 
-# Load environment variables from .env file
-load_dotenv()
 
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -76,10 +73,9 @@ class IdentifyFileOrDir(BaseModel):
 
 class Copy(BaseModel):
     oid: int
-    source_pid: int
-    source_filename: str
+    pid: int
+    name: str
     target_pid: int
-    target_filename: str
 
 
 class Permission(BaseModel):
@@ -88,6 +84,13 @@ class Permission(BaseModel):
     pid: int
     name: str
     mode: str
+
+
+class Rename(BaseModel):
+    oid: int
+    pid: int
+    name: str
+    new_name: str
 
 
 # API Routes
@@ -131,11 +134,15 @@ def move_file_route(data: Copy):
     return Move_file(
         fsDB,
         data.oid,
-        data.source_pid,
-        data.source_filename,
+        data.pid,
+        data.name,
         data.target_pid,
-        data.target_filename,
     )
+
+
+@app.put("/renameFile")
+def rename_file(data: Rename):
+    return Rename_file(fsDB, data.oid, data.pid, data.name, data.new_name)
 
 
 @app.post("/createDir")

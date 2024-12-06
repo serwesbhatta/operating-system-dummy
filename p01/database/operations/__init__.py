@@ -10,6 +10,7 @@ from .table_exists import Table_exists
 from .update_data import Update_data
 from .set_permissions import Set_permissions
 from .get_column_names import Get_column_names
+from .update_multiple_data import Update_multiple_data
 
 __all__ = [
     "Create_table",
@@ -24,4 +25,5 @@ __all__ = [
     "Update_data",
     "Set_permissions",
     "Get_column_names",
+    "Update_multiple_data",
 ]
