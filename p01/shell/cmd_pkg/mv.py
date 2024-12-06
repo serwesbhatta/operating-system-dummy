@@ -29,15 +29,6 @@ def mv(params=None):
     source_response = file_path_helper(source_path)
 
     if source_response["status"] == "success" and source_response["file_exist"] == True:
-
-        target_file_response = file_path_helper(target_path)
-
-        if target_file_response["status"] == "success" and target_file_response["file_exist"] == "success":
-            return {
-                "status": "fail",
-                "message": "\nFile already exists."
-            }
-
         target_response = dir_path_helper(target_path)
 
         if target_response["status"] == "success":
@@ -46,14 +37,28 @@ def mv(params=None):
             source_filename = source_response["file_name"]
             target_pid = target_response["pid"]
 
+            file_exist_filters = {"oid": oid, "pid": target_pid, "name": source_filename}
+
+            try:
+                target_file_exist_response = call_api("files", params=file_exist_filters)
+
+                if target_file_exist_response["status"] == "success":
+                    return {
+                        "status": "fail",
+                        "message": "\nFile exist already."
+                    }
+            except:
+                return {
+                    "status": "fail",
+                    "message": f"\nCould not check if same file is present in '{target_path}'"
+                }
+
             filters = {
                 "oid": oid,
                 "pid": source_pid,
                 "name": source_filename,
                 "target_pid": target_pid,
             }
-
-            print(filters)
             try:
                 api_response = call_api("mv", "put", data=filters)
 
