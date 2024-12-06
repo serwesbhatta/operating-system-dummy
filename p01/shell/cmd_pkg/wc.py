@@ -54,6 +54,12 @@ def wc(params=None, input=None):
 
             if response["status"] == "success":
                 content = response["message"][0]["contents"]
+            
+            else:
+                return {
+                    "status": "fail",
+                    "message": "\nCannot find the required file."
+                }
 
         except:
             return {
