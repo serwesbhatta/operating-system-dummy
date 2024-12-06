@@ -13,57 +13,61 @@ def grep(params=None, input=None):
             "status": "fail",
             "message": "\nPlease specify the pattern first and file after that."
         }
-    elif len(params) > 2:
-        return {
-            "status": "fail",
-            "message": "\nToo manyu parameters."
-        }
     elif input is not None and len(params) == 0:
         return {
             "status": "fail",
             "message": "\nPlease specify the pattern"
         }
-    
+
     pattern = params[0]
+    params.pop(0)
+
+    # Validate or preprocess the pattern
+    try:
+        re.compile(pattern)
+    except re.error:
+        return {"status": "fail", "message": f"\nInvalid pattern: '{pattern}'."}
+
     contents = ""
     message = ""
 
     if input == None:
-        filename = params[1]
-        oid = Fs_state_manager.get_oid()
-        pid = Fs_state_manager.get_pid()
-        
-        filters = {"oid": oid, "pid": pid, "name": filename}
-        
-        try:
-            response = call_api("files", params=filters)
+        params = [element.rstrip(",") for element in params]
+        for param in params:
+            filename = param
+            oid = Fs_state_manager.get_oid()
+            pid = Fs_state_manager.get_pid()
 
-            if response["status"] == "success":
-                contents = response["message"][0]["contents"]
-            
-            else:
+            filters = {"oid": oid, "pid": pid, "name": filename}
+
+            try:
+                response = call_api("files", params=filters)
+
+                if response["status"] == "success":
+                    contents += response["message"][0]["contents"] + "\n"
+
+                else:
+                    return {
+                        "status": "fail",
+                        "message": f"\nFile '{filename}' doesn't exist."
+                    }
+            except:
                 return {
                     "status": "fail",
-                    "message": f"\nFile '{filename}' doesn't exist."
+                    "message": "\nCannot make a call to api."
                 }
-        except:
-            return {
-                "status": "fail",
-                "message": "\nCannot make a call to api."
-            }
     else:
         contents = input["message"]
-    
+
     lines = contents.split("\n")
 
     for line in lines:
         result = bool(re.search(pattern, line))
-        
+
         if result == True:
             message += "\n"+line
-    
+
     return {
         "status": "success",
         "message": message
     }
-    
