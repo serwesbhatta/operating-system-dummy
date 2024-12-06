@@ -112,7 +112,7 @@ if __name__ == "__main__":
             history_response = cmd_pkg.history(None)
             history_contents = history_response["message"].split('\n')  # split history into lines
             if direction in "A":  # up arrow pressed
-        # check if arrow_count is within the valid range of history
+                # check if arrow_count is within the valid range of history
                 if arrow_count < len(history_contents) - 1:
                     arrow_count += 1
                     # get the command from history, considering how far back we are (arrow_count)
@@ -129,7 +129,7 @@ if __name__ == "__main__":
                 # Check if we can move down in the history
                 if arrow_count > 0:
                     arrow_count -= 1
-            # Get the command for the current position in history after decrement
+                    # Get the command for the current position in history after decrement
                     if arrow_count < len(history_contents):
                         history_command = history_contents[-(arrow_count + 1)].strip()
 
@@ -137,13 +137,12 @@ if __name__ == "__main__":
                         cmd = history_command.split(maxsplit=1)[-1] if ' ' in history_command else history_command
                         print_cmd(cmd)
                     else:
-                    # If we're at the end of history, clear the command
+                        # If we're at the end of history, clear the command
                         cmd = ""
                         print_cmd(cmd)  # Clear the command display
                 else:
                     cmd = ""
                     print_cmd("")
-
 
             if direction in "C":  # right arrow pressed
                 if cursor_position < len(cmd):  # Ensure we don't go past the end of the command
@@ -157,9 +156,8 @@ if __name__ == "__main__":
 
         elif char in "\r":  # return pressed
             arrow_count = -1
-            # # This 'elif' simulates something "happening" after pressing return
-            # print_cmd("Executing command....")
-            # sleep(1)
+            continue_loop = False
+
             if cmd:
                 cmd_pkg.history(cmd)
 
@@ -181,10 +179,24 @@ if __name__ == "__main__":
                         each_command = each_command.strip().split()
                         each_command_main = each_command[0]
                         each_command_args = each_command[1:]
-                        
+
+                        if each_command_main.startswith("!"):
+                            index_cmd = cmd[1:].split()
+                            index_response = Run_history(index_cmd)
+
+                            if index_response["status"] == "fail":
+                                print(index_response["message"])
+                                continue_loop = True
+                                break
+                            else:
+                                each_command_main = index_response["message"]["main"]
+                                each_command_args = index_response["message"]["args"]
+                                print(f"\n{each_command_main}\n{each_command_args}")
+
                         result = execute_command(each_command_main, each_command_args, input_data)
 
                         if "Error" in result["message"]:
+                            continue_loop = True
                             print(result["message"])
                             break
 
@@ -192,14 +204,32 @@ if __name__ == "__main__":
 
                         if index == len(each_commands) - 1:
                             print(result["message"])
+
+                        if continue_loop:
+                            continue
                 else:
                     command = commands.strip().split()
                     main_cmd = command[0]
                     cmd_args = command[1:]
 
+                    if main_cmd.startswith("!"):
+                        index_cmd = cmd[1:].split()
+                        index_response = Run_history(index_cmd)
+
+                        if index_response["status"] == "fail":
+                            print(index_response["message"])
+                            continue_loop = True
+                            break
+                        else:
+                            main_cmd = index_response["message"]["main"]
+                            cmd_args = index_response["message"]["args"]
+
                     result = execute_command(main_cmd, cmd_args) 
-                    
+
                     print(result["message"])
+
+                    if continue_loop:
+                        continue
 
                 if redirection:
                     content = result["message"]
@@ -241,25 +271,25 @@ if __name__ == "__main__":
             # if "|" in cmd:
             #     # Split by pipes
             #     pipe_cmds = cmd.split("|")
-                
+
             #     input_data = None  # This will store the output from the previous command
 
             #     for pipe_cmd in pipe_cmds:
             #         # Split the subcommand and its arguments
             #         cmd_parts = pipe_cmd.strip().split()
-                    
+
             #         if len(cmd_parts) > 0:
             #             main_cmd = cmd_parts[0]
             #             args = cmd_parts[1:]
 
             #             # Execute the command
             #             result = execute_command(main_cmd, args, input_data)
-                        
+
             #             # If result is an error, stop processing further
             #             if "Error" in result:
             #                 print(result)
             #                 break
-                        
+
             #             # Pass the result as input for the next command
             #             input_data = result
 
@@ -291,11 +321,11 @@ if __name__ == "__main__":
             #         if main_cmd in cmds:
             #             # Call the function
             #             result = cmds[main_cmd](params=args) if args else cmds[main_cmd]()
-                        
+
             #             # Handle output redirection if applicable
             #             if ">" in cmd:
             #                 output_file = cmd.split(">")[-1].strip()
-                            
+
             #                 # Use the Write_file API to write the result to the database file system
             #                 user_id = 1  # Assuming static user ID
             #                 api_response = Write_file(fsDB, output_file, result, user_id)
@@ -304,7 +334,7 @@ if __name__ == "__main__":
             #                     print(f"\n{api_response['message']}")
             #                 else:
             #                     print(f"\nError: Could not write to the file '{output_file}'.")
-                        
+
             #             else:
             #                 # No redirection, just print the result
             #                 print(f"\n{result}")

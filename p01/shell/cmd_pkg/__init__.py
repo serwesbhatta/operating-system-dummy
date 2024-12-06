@@ -17,6 +17,7 @@ from .rm import rm
 from .mv import mv
 from .tail import tail
 from .wc import wc
+from .run_history import Run_history
 from .fs_state_manager import FileSystemStateManager
 
 __all__ = [
@@ -40,4 +41,5 @@ __all__ = [
     "mv",
     "tail",
     "wc",
+    "Run_history",
 ]
