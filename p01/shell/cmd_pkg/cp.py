@@ -37,14 +37,12 @@ def cp(params=None):
             source_filename = source_response["file_name"]
 
             target_pid = target_response["pid"]
-            target_filename = source_filename
 
             filters = {
                 "oid": oid,
-                "source_pid": source_pid,
-                "source_filename": source_filename,
+                "pid": source_pid,
+                "name": source_filename,
                 "target_pid": target_pid,
-                "target_filename": target_filename,
             }
 
             try:
@@ -53,7 +51,7 @@ def cp(params=None):
                 if api_response["status"] == "success":
                     return {
                         "status": "success",
-                        "message": f"\nSuccessfully copied file to {target_path}."
+                        "message": ""
                     }
                 
                 message = api_response["message"]

@@ -180,10 +180,9 @@ def copy_file(data: Copy):
     return Copy_file(
         fsDB,
         data.oid,
-        data.source_pid,
-        data.source_filename,
+        data.pid,
+        data.name,
         data.target_pid,
-        data.target_filename,
     )
 
 

@@ -9,23 +9,20 @@ CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 def Copy_file(
     fsDB: SqliteCRUD,
     oid: int,
-    source_pid: int,
-    source_filename: str,
+    pid: int,
+    name: str,
     target_pid: int,
-    target_filename: str,
 ):
     """
     Create a new file in the simulated filesystem and record the action in the database.
     """
     if fsDB:
         try:
-            source_file = Get_files(fsDB, oid, source_pid, source_filename)
+            source_file = Get_files(fsDB, oid, pid, name)
             source_file = source_file["message"]
 
         except:
             return {"status": "fail", "message": "\nUnable to read source file."}
-
-        print("Database is initialized")
 
         if source_file:
             size = source_file[0]["size"]
@@ -39,7 +36,7 @@ def Copy_file(
             world_execute = source_file[0]["world_execute"]
 
             try:
-                target_file = Get_files(fsDB, oid, target_pid, target_filename)
+                target_file = Get_files(fsDB, oid, target_pid, name)
 
                 if target_file["status"] == "success":
                     return {
@@ -52,7 +49,7 @@ def Copy_file(
                         None,
                         target_pid,
                         oid,
-                        target_filename,
+                        name,
                         size,
                         CURRENT_TIMESTAMP,
                         CURRENT_TIMESTAMP,
@@ -70,12 +67,12 @@ def Copy_file(
 
                         return {
                             "status": "success",
-                            "message": f"\nFile '{target_filename}' created successfully.",
+                            "message": f"\nFile '{name}' created successfully.",
                         }
                     except:
                         return {
                             "status": "fail",
-                            "message": f"\nUnable to create the file {target_filename}.",
+                            "message": f"\nUnable to create the file {name}.",
                         }
             except:
                 return {"status": "fail", "message": "\nUnable to read target file."}
