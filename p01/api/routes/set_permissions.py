@@ -11,9 +11,9 @@ def Set_permissions(
             table_name = "files"
 
         owner_permission = int(mode[0])
-        owner_permission = format(owner_permission, "b")
+        owner_permission = format(owner_permission, "b").zfill(3)
         world_permnission = int(mode[2])
-        world_permission = format(world_permnission, "b")
+        world_permission = format(world_permnission, "b").zfill(3)
 
         permissions = {
             "owner_read": int(owner_permission[0]),

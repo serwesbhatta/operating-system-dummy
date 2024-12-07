@@ -33,7 +33,7 @@ def chmod(params=None):
 
    if file_path_response["status"] == "success" and file_path_response["file_exist"]:
       name = file_path_response["file_name"]
-      file_exist = False
+      file_exist = True
 
    else:
       dir_path = path
