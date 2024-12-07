@@ -51,6 +51,7 @@ def grep(params=None, input=None):
     message = ""
     match_files = []
     counts = {}
+    count_int = 0
 
     if input == None:
         params = [element.rstrip(",") for element in params]
@@ -95,6 +96,7 @@ def grep(params=None, input=None):
         contents = input["message"]
 
         lines = contents.split("\n")
+        filename_added = False
 
         for line in lines:
             result = ""
@@ -103,20 +105,24 @@ def grep(params=None, input=None):
             else:
                 result = bool(re.search(pattern, line))
             if result == True:
-                counts += 1
+                count_int += 1
                 message += "\n" + line
 
     final_message = ""
 
     if flags != []:
-        if l_flag:
+        if l_flag and input == None:
             final_message += "\n" + "\n".join(match_files)
-        if c_flag:
+        if c_flag and input == None:
             if len(counts) > 1:
                 for key, value in counts.items():
                     final_message += f"\n{key} : {value}"
             elif len(params) == 1 and params[0] in counts:
                 final_message += f"\n{params[0]} : {counts[params[0]]}"
+        if l_flag and input != None:
+            final_message = ""
+        if c_flag and input != None:
+            final_message = f"\n{count_int}"
     else:
         final_message = message
 
