@@ -1,19 +1,15 @@
 from fastapi import HTTPException
 from database.sqliteCRUD import SqliteCRUD
-from .get_column_names import Get_column_names
 from .convert_to_dictionary import Convert_to_dictionary
 
-def List_directories(fsDB: SqliteCRUD, oid: int, pid: int, name: str = None):
+
+def Dir_by_id(fsDB: SqliteCRUD, oid: int, id: int):
     """
     List all directories under a specific parent directory in the simulated filesystem.
     :param pid: The ID of the parent directory (default is root directory with ID 1).
     """
-    if name:
-        filters = {"oid": oid, "name": name, "pid": pid}
-    elif pid:
-        filters = {"oid": oid, "pid": pid}
-    else:
-        print("Please use the pid")
+    filters = {"oid": oid, "id": id}
+
     if fsDB:
         # Fetch directories under the specified parent directory
         directories = fsDB.read_data("directories", filters)
@@ -32,5 +28,6 @@ def List_directories(fsDB: SqliteCRUD, oid: int, pid: int, name: str = None):
     else:
         return {
             "status": "fail",
-            "message": "\nAPI: Database not initialized."
+            "message": "\nAPI: Database not initialized.",
         }
+        raise HTTPException(status_code=500, detail="D")

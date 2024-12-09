@@ -1,8 +1,8 @@
 from fastapi import FastAPI
 from fastapi.responses import RedirectResponse
-from dotenv import load_dotenv
 import uvicorn
 from datetime import datetime
+from pydantic import BaseModel
 
 # Builtin libraries
 import os, sys
@@ -16,8 +16,6 @@ from database import SqliteCRUD
 # import different routes as modules
 from routes import *
 
-# Load environment variables from .env file
-load_dotenv()
 
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -43,70 +41,155 @@ app = FastAPI(
 )
 
 # Database setup
-dataPath = os.getenv("DB_PATH")
-dbName = os.getenv("DB_NAME")
+# dataPath = os.getenv("DB_PATH")
+# dbName = os.getenv("DB_NAME")
+
+dataPath = "../database/data/"
+dbName = "filesystem.db"
 
 dbFilePath = os.path.join(dataPath, dbName)
 print("Checking for database at:", dbFilePath)
 
 if os.path.exists(dbFilePath):
     fsDB = SqliteCRUD(dbFilePath)
-    
+
 else:
     fsDB = None
     print("Database file not found.")
+
+
+class WriteData(BaseModel):
+    oid: int
+    pid: int
+    filepath: str
+    content: str
+
+
+class IdentifyFileOrDir(BaseModel):
+    oid: int
+    pid: int
+    name: str
+
+
+class Copy(BaseModel):
+    oid: int
+    pid: int
+    name: str
+    target_pid: int
+
+
+class Permission(BaseModel):
+    file: bool
+    oid: int
+    pid: int
+    name: str
+    mode: str
+
+
+class Rename(BaseModel):
+    oid: int
+    pid: int
+    name: str
+    new_name: str
+
 
 # API Routes
 @app.get("/")
 async def docs_redirect():
     return RedirectResponse(url="/docs")
 
+
 @app.get("/columnNames")
-async def get_column_names(table_name: str):
-    return await Get_column_names(fsDB, table_name)
+def get_column_names(table_name: str):
+    return Get_column_names(fsDB, table_name)
+
 
 @app.get("/files")
-async def get_files_route(pid: int, name = None):
-    return await Get_files(fsDB, pid, name)
+def get_files_route(oid: int, pid: int, name: str = None):
+    return Get_files(fsDB, oid, pid, name)
 
 
 @app.post("/touch")
-def create_file_route(pid: int, name: str):
-    return Create_file(fsDB, name, pid)
+def create_file_route(data: IdentifyFileOrDir):
+    return Create_file(fsDB, data.oid, data.pid, data.name)
 
 
 @app.delete("/rm")
-def delete_file_route(pid: int, filename: str):
-    return Delete_file(fsDB, pid, filename)
+def delete_file_route(data: IdentifyFileOrDir):
+    return Delete_file(fsDB, data.oid, data.pid, data.name)
 
 
 @app.get("/file")
-def read_file_content(pid: int, filename: str, user_id: int):
-    return Read_file(fsDB, pid, filename, user_id)
+def read_file_content(oid: int, pid: int, filename: str):
+    return Read_file(fsDB, oid, pid, filename)
 
 
-@app.post("/filePath")
-def write_file_route(pid: int, filepath: str, content: str, user_id: int):
-    return Write_file(fsDB, pid, filepath, content, user_id)
+@app.put("/write")
+def write_file_route(data: WriteData):
+    return Write_file(fsDB, data.oid, data.pid, data.filepath, data.content)
 
 
 @app.put("/mv")
-def rename_file_route(old_pid: int, old_filename: str, new_pid: int, new_filename: str):
-    return Rename_file(fsDB, old_pid, old_filename, new_pid, new_filename)
+def move_file_route(data: Copy):
+    return Move_file(
+        fsDB,
+        data.oid,
+        data.pid,
+        data.name,
+        data.target_pid,
+    )
 
 
-@app.post("/dir")
-def create_directory(pid: int, directory_name: str):
-    return Create_directory(fsDB, pid, directory_name)
+@app.put("/renameFile")
+def rename_file(data: Rename):
+    return Rename_file(fsDB, data.oid, data.pid, data.name, data.new_name)
 
-@app.delete("/dir")
-def delete_directory(pid: int, directory_name: str):
-    return Delete_directory(fsDB, pid, directory_name)
+
+@app.post("/createDir")
+def create_directory(data: IdentifyFileOrDir):
+    return Create_directory(fsDB, data.oid, data.pid, data.name)
+
+
+@app.delete("/deleteDir")
+def delete_directory(oid: int, pid: int, directory_name: str):
+    return Delete_directory(fsDB, oid, pid, directory_name)
 
 
 @app.get("/dirs")
-def list_directories(pid: int):
-    return List_directories(fsDB, pid)
+def list_directories(oid: int, pid: int, name: str = None):
+    return List_directories(fsDB, oid, pid, name)
+
+
+@app.get("/dirById")
+def dir_by_id(oid: int, id: int):
+    return Dir_by_id(fsDB, oid, id)
+
+
+@app.get("/parentDir")
+def get_parent_directory(id: int):
+    return Get_parent_directory(fsDB, id)
+
+
+@app.get("/users")
+def get_users(user_id: int = None):
+    return Get_users(fsDB, user_id)
+
+
+@app.post("/copy")
+def copy_file(data: Copy):
+    return Copy_file(
+        fsDB,
+        data.oid,
+        data.pid,
+        data.name,
+        data.target_pid,
+    )
+
+
+@app.put("/setpermissions")
+def set_permissions(data: Permission):
+    return Set_permissions(fsDB, data.file, data.oid, data.pid, data.name, data.mode)
+
 
 if __name__ == "__main__":
     uvicorn.run("api:app", host="127.0.0.1", port=8080, log_level="debug", reload=True)

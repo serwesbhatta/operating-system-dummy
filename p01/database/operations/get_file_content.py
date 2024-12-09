@@ -7,7 +7,10 @@ def Get_file_content(cursor, filters):
         """
         try:
             # Fetch file details
+            print("before file record")
             file_record = Read_data(cursor, "files", filters)
+
+            print(f"File record: {file_record}")
 
             if file_record:
                 owner_id = file_record[0][2]  # Owner ID

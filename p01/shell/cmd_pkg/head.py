@@ -1,56 +1,96 @@
-from database.sqliteCRUD import SqliteCRUD
-from cmd_pkg.fs_state_manager import Fs_state_manager
-fsDB = SqliteCRUD("../database/data/filesystem.db")
+from .call_api import call_api
+from .fs_state_manager import Fs_state_manager
+from .get_flags import get_flags
 
 
-def head(params):
+def head(params=None, input = None):
     """Display the first N lines of a file."""
-    if len(params) < 1:
-        print("\nError: No file specified.\n")
-        return
+    if (params == None and input == None):
+        return {"status": "fail", "message": "\nError: No file specified."}
 
-    file_name = params[0]
+    file_name = ""
     num_lines = 10  # Default to 10 if no -n option is provided
 
-    # Check if -n option is provided
-    if len(params) == 3 and params[1] == '-n':
+    allowed_flags = ["n"]
+    flags_response = get_flags(allowed_flags, params)
+    flags = flags_response["flags"]
+
+    if flags_response["invalid_flags"]:
+        return {
+            "status": "fail",
+            "message": "\nOnvalid flags"
+        }
+
+    if flags:
+        flag_index = flags_response["flags_index"][0]
+        params.pop(flag_index)
+
+        if params == []:
+            return {
+                "status": "fail",
+                "message": "\nPlease specify the number" 
+            }
+        num_lines_index = flag_index
         try:
-            num_lines = int(params[2])
+            num_lines = int(params[num_lines_index])
             if num_lines < 1:
-                print("\nError: Number of lines must be a positive integer.\n")
-                return
+                return {
+                    "status": "fail",
+                    "message": "\nError: Number of lines must be a positive integer.",
+                }
         except ValueError:
-            print("\nError: Invalid number of lines specified. It must be an integer.\n")
-            return
-    elif len(params) > 1 and params[1] != '-n':
-        print("\nError: Invalid command format. Use -n followed by a number.\n")
-        return
+            return {
+                "status": "fail",
+                "message": "\nError: Invalid number of lines specified. It must be an integer.",
+            }
 
-    current_pid = Fs_state_manager.get_pid()
+        params.pop(flag_index)
 
-    # Fetch file contents from the database
-    if fsDB.file_exists(file_name, current_pid):
-        file_contents = fsDB.get_file_contents(file_name, current_pid)
-        
-        if file_contents is not None:
-            # Handle binary files
-            if isinstance(file_contents, bytes):
-                try:
-                    file_contents = file_contents.decode('utf-8')
-                except UnicodeDecodeError:
-                    print(f"\nError: File '{file_name}' contains binary data and cannot be displayed as text.\n")
-                    return
+        if params == []:
+            return {
+                "status": "fail",
+                "message": "\nPlease enter the file name as well"
+            }
 
-            # Split file contents into lines
-            lines = file_contents.split('\n')
-            # Print the first num_lines
-            print("\n")
-            print("\n".join(lines[:num_lines]))
+        file_name = params[0]
 
-        else:
-            print(f"\nError: Could not read the contents of '{file_name}'.\n")
+    elif flags == [] and len(params) > 1:
+        return {
+            "status": "fail",
+            "message": "\nToo many parameters",
+        }
+
     else:
-        print(f"\nError: File '{file_name}' does not exist in the current directory.\n")
+        file_name = params[0]
 
-    return ""
+    pid = Fs_state_manager.get_pid()
+    oid = Fs_state_manager.get_oid()
 
+    filters = {"oid": oid, "pid": pid, "name": file_name}
+
+    try:
+        response = call_api("files", params=filters)
+
+        # Fetch file contents from the database
+        if response["status"] == "success":
+            file_contents = response["message"][0]["contents"]
+
+            if file_contents is not None:
+                lines = file_contents.split("\n")
+                message = "\n".join (lines[:num_lines+1])
+                return {
+                    "status": "success",
+                    "message": message
+                }
+            else:
+                return {
+                    "status": "fail",
+                    "message": f"\nError: Could not read the contents of '{file_name}'."
+                }
+        else:
+            return {
+                "status": "fail",
+                "message": f"\nError: File '{file_name}' does not exist in the current directory."
+            }
+    except:
+        return {"status": "fail", "message": "\nCould not make a call to api"}

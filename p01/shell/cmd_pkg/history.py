@@ -1,42 +1,71 @@
-# cmd_pkg/pwd.py
-
-import os
-from database.sqliteCRUD import SqliteCRUD
-from cmd_pkg.fs_state_manager import Fs_state_manager
 from datetime import datetime
+from cmd_pkg.fs_state_manager import Fs_state_manager
+from .call_api import call_api
 
+# Get current timestamp for logging or history entries
 CURRENT_TIMESTAMP = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-fsDB = SqliteCRUD("../database/data/filesystem.db")
 
+def history(cmd=None):
+    """
+    Retrieve or create a history file for each user based on their OID (owner ID).
+    """
+    try:
+        # Retrieve owner ID for the current user and create a unique filename
+        oid = Fs_state_manager.get_oid()
+        filename = "history.txt"
+        
+        # Define the parameters to check if the file exists
+        history_params = {"pid": 1, "name": filename, "oid": oid}
+        
+        # Attempt to fetch history file content via API'
+        existing_history = call_api("files", "get", params=history_params)
 
-def history(cmd = None):
-    file_name = "history.txt"
-    result = []
-    result_string = ""
-    values = (
-            None, 1, 1, file_name, 0, CURRENT_TIMESTAMP, CURRENT_TIMESTAMP, None,
-            1, 1, 1, 1, 0, 1  # Permissions and default values
-        )
-    if not fsDB.file_belongs_to_directory(file_name, 1):
-        fsDB.insert_data("files",values)
-    if cmd!= None:
-        filters = {"name": "history.txt", "pid": 1}
-        file_record = fsDB.read_data("files", filters)
-        file_id = file_record[0][0]
-        # print(file_record)
-        if file_record[0][7]!= None:
-            count = len(file_record[0][7].split("\n"))
-            new_contents = file_record[0][7] + "\n" + str(count) + " " + cmd
+        if existing_history["status"] == "success":
+            if cmd:
+                previous_contents = existing_history["message"][0]["contents"]
+                lines = previous_contents.strip().split("\n")
+                count = len(lines)
+
+                new_contents = previous_contents + "\n" + str(count) + " " + cmd
+
+                update_history_data = {"oid": oid, "pid": 1, "filepath": filename, "content": new_contents}
+
+                response = call_api("write", "put", data=update_history_data)
+
+                if response is None:
+                    print("Failed to update history.")
+            else:
+                response = call_api("files", params=history_params)
+                if response["status"] == "success":
+                    return {
+                        "status": "success",
+                        "message": response["message"][0]["contents"]
+                    }
+                else:
+                    return {
+                        "status": "fail",
+                        "message": ""
+                    }
         else:
-            new_contents = "0 " + cmd
-        # new_contents = None
-        fsDB.update_data("files", "contents", new_contents, "id", file_id)  
-        return ""
-    else:
-        filters = {"name": "history.txt", "pid": 1}
-        file_record = fsDB.read_data("files", filters)
-        result = file_record[0][7].split("\n")
-        for i in result:
-            result_string += i+"\n"
+            contents = ""
+            if cmd:
+                contents += "\n" + "0 " + cmd
+
+            new_history_data = {"oid": oid, "pid": 1, "name": "history.txt"}
+            create_response = call_api("touch", "post", data=new_history_data)
+
+            if create_response == 200:
+                print(f"Failed to create history file")
+            else:
+                update_history_data = {"oid": oid, "pid": 1, "filepath": filename, "content": contents}
+
+                response = call_api("write", "put", data=update_history_data)
+
+                if response is None:
+                    print("Failed to update history.")
+        
+    except Exception as e:
+        print(f"Error accessing history file: {e}")
     
-    return result_string
+    return ""  # Optional: return a status message or content
+

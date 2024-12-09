@@ -3,14 +3,14 @@ from database.sqliteCRUD import SqliteCRUD
 from .get_column_names import Get_column_names
 from .encoder_decoder import Decode
 
-async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
+def Get_files(fsDB: SqliteCRUD, oid: int, pid: int, name : str = None):
     """
     Get a list of files from the simulated filesystem (from the database).
     """
     if name is not None:
-        filters = {"name": name, "pid": pid}
+        filters = {"oid": oid, "name": name, "pid": pid}
     elif pid:
-        filters = {"pid": pid}
+        filters = {"oid": oid, "pid": pid}
     else:
         print("Please use the pid")
     
@@ -20,7 +20,7 @@ async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
         except:
             raise HTTPException(status_code=404, detail="Could not read data")
         if files:
-            column_names = await Get_column_names(fsDB, "files")
+            column_names = Get_column_names(fsDB, "files")
             rows = [dict(zip(column_names, row)) for row in files]
             for row in rows:
                 if row["contents"] != "NULL":
@@ -28,8 +28,14 @@ async def Get_files(fsDB: SqliteCRUD, pid: int, name : str =None):
                         row["contents"] = Decode(row["contents"])
                     except:
                         row["contents"] = "Cannot Decode"
-            return rows
+            return {
+                "status": "success",
+                "message": rows
+            }
         else:
-            raise HTTPException(status_code=404, detail="No files found.")
+            return {
+                "status": "fail",
+                "message": f"\nCould not read the file {name}."
+            }
     else:
         raise HTTPException(status_code=500, detail="Database not initialized.")
